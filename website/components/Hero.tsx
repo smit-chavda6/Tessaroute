@@ -19,10 +19,10 @@ export function Hero() {
         };
 
   return (
-    <section className="relative pt-28 sm:pt-32" id="top">
-      <div className="wrap relative grid items-center gap-y-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.02fr)] lg:gap-x-16">
+    <section className="relative flex min-h-[100svh] flex-col pt-24 sm:pt-28 lg:pt-[max(5.25rem,min(7rem,12svh))]" id="top">
+      <div className="wrap relative grid flex-1 items-center gap-y-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.02fr)] lg:gap-x-16">
         {/* copy column */}
-        <div className="relative z-10 min-w-0 py-6 lg:py-16">
+        <div className="relative z-10 min-w-0 py-6 lg:py-4">
           <motion.a
             href="#aliases"
             {...rise(0.05)}
@@ -37,20 +37,20 @@ export function Hero() {
 
           <motion.h1
             {...rise(0.15)}
-            className="mt-7 font-display text-[clamp(2.7rem,5.4vw,4.6rem)] font-semibold leading-[1.02] tracking-[-0.045em]"
+            className="mt-7 font-display text-[clamp(2.7rem,5.4vw,4.6rem)] font-semibold leading-[1.02] tracking-[-0.045em] lg:mt-[min(1.75rem,3svh)] lg:text-[clamp(2.5rem,min(5.4vw,8.4svh),4.6rem)]"
           >
             One endpoint.
             <br />
             <span className="text-gradient">Every model.</span>
           </motion.h1>
 
-          <motion.p {...rise(0.3)} className="mt-7 max-w-[34rem] text-[1.1rem] leading-relaxed text-muted">
+          <motion.p {...rise(0.3)} className="mt-7 max-w-[34rem] text-[1.1rem] leading-relaxed text-muted lg:mt-[min(1.75rem,3svh)]">
             InferMesh is an OpenAI-compatible gateway in front of OpenAI, Anthropic, Gemini and Azure. It routes
             each request to the right provider, falls back at the same quality tier, caches, rate-limits and
             prices every call.
           </motion.p>
 
-          <motion.div {...rise(0.45)} className="mt-10 flex flex-wrap gap-3">
+          <motion.div {...rise(0.45)} className="mt-10 flex flex-wrap gap-3 lg:mt-[min(2.5rem,4svh)]">
             <a
               href="#quickstart"
               className="btn-primary shine group inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-[0.95rem] font-medium transition hover:-translate-y-0.5"
@@ -69,7 +69,7 @@ export function Hero() {
             </a>
           </motion.div>
 
-          <motion.ul {...rise(0.6)} className="mt-12 flex flex-wrap gap-x-5 gap-y-2" aria-label="Providers">
+          <motion.ul {...rise(0.6)} className="mt-12 flex flex-wrap gap-x-5 gap-y-2 lg:mt-[min(3rem,4.5svh)]" aria-label="Providers">
             {PROVIDER_STATUS.map((p) => (
               <li key={p} className="flex items-center gap-2 font-mono text-[0.75rem] text-faint">
                 <span className="relative flex h-2 w-2">
@@ -84,7 +84,7 @@ export function Hero() {
 
         {/* globe column */}
         <motion.div
-          className="relative mx-auto w-full max-w-[640px] min-w-0"
+          className="relative mx-auto w-full max-w-[640px] min-w-0 lg:max-w-[min(640px,calc(100svh_-_230px))]"
           initial={reduce ? false : { opacity: 0, scale: 0.94 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
@@ -95,7 +95,7 @@ export function Hero() {
       </div>
 
       {/* model strip */}
-      <div className="mt-16 border-y border-white/[0.06] bg-white/[0.015] py-4 [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
+      <div className="mt-8 border-y border-white/[0.06] bg-white/[0.015] py-4 [@media(max-height:640px)]:mt-3 [@media(max-height:640px)]:py-2.5 [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
         <div className="marquee flex w-max gap-3">
           {[...MARQUEE_MODELS, ...MARQUEE_MODELS].map((m, i) => (
             <span
