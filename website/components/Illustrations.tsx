@@ -188,7 +188,7 @@ export function LatencyGauge() {
       <text x={cx - R} y={cy + 18} textAnchor="middle" fontSize="7.5" fill={DIM} style={mono}>0</text>
       <text x={cx + R} y={cy + 18} textAnchor="middle" fontSize="7.5" fill={DIM} style={mono}>3s</text>
       <text x={cx} y="150" textAnchor="middle" fontSize="7.5" fill={DIM} style={mono}>
-        p50 490ms · mean 605ms
+        p50 496ms · mean 605ms
       </text>
     </svg>
   );

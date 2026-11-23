@@ -1,7 +1,7 @@
 // Every fact on the site lives here, taken from the repo:
 // backend/models.yaml, backend/pricing.yaml (version 2026-11-23), PROGRESS.md.
 
-export const REPO_URL = "https://github.com/smit-chavda6/InferMesh";
+export const REPO_URL = "https://github.com/smit-chavda6/Tessaroute";
 export const PRICING_VERSION = "2026-11-23";
 
 export type ProviderId = "openai" | "anthropic" | "gemini" | "azure_foundry";
@@ -169,7 +169,7 @@ export const STACK = {
 
 export const QUICKSTART = [
   `git clone ${REPO_URL}`,
-  "cd InferMesh && cp .env.example backend/.env",
+  "cd Tessaroute && cp .env.example backend/.env",
   "docker compose --profile full up --build",
   "docker compose --profile seed run --rm seed --rows 100000 --truncate",
 ];

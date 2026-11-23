@@ -25,7 +25,7 @@ describe("LoginPage", () => {
   it("renders branding, operational status, and form elements", () => {
     renderWithProviders(<LoginPage />);
 
-    expect(screen.getByText("InferMesh")).toBeInTheDocument();
+    expect(screen.getByText("Tessaroute")).toBeInTheDocument();
     expect(screen.getByText("Operational")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Welcome back." })).toBeInTheDocument();
     expect(screen.getByText("Sign in to your gateway console.")).toBeInTheDocument();

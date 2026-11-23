@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 /*
-  WebGL dotted globe (cobe). The InferMesh gateway sits in Mumbai; client
+  WebGL dotted globe (cobe). The Tessaroute gateway sits in Mumbai; client
   cities send arcs into it and it routes out to provider regions. Markers,
   arcs and labels all come from the same projection inside cobe, so labels
   can never drift off their points: they hang off CSS anchors that cobe
@@ -228,12 +228,12 @@ export function Globe({ className = "" }: { className?: string }) {
       />
       <canvas
         ref={canvasRef}
-        aria-label="Globe showing client traffic routed through the InferMesh gateway in Mumbai to provider regions"
+        aria-label="Globe showing client traffic routed through the Tessaroute gateway in Mumbai to provider regions"
         role="img"
         className="relative h-full w-full touch-pan-y transition-opacity duration-1000"
         style={{ opacity: ready ? 1 : 0, cursor: "grab", contain: "layout paint size" }}
       />
-      <GlobeLabel id="hub" title="InferMesh gateway" sub="Mumbai" hub />
+      <GlobeLabel id="hub" title="Tessaroute gateway" sub="Mumbai" hub />
       {PROVIDERS.map((p) => (
         <GlobeLabel key={p.id} id={p.id} title={p.name} sub={p.region} />
       ))}

@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableDelayedExpansion
-title InferMesh - full Docker stack
+title Tessaroute - full Docker stack
 cd /d "%~dp0"
 
 echo(
-echo   InferMesh  -  full container stack  (nginx + gateway + Postgres + Redis)
+echo   Tessaroute  -  full container stack  (nginx + gateway + Postgres + Redis)
 echo   --------------------------------------------------------------------------
 echo(
 
@@ -37,7 +37,10 @@ docker compose --profile full up -d --build || goto :fail
 echo [..] Waiting for the backend to become healthy...
 :waitbe
 set "_be="
-for /f "usebackq delims=" %%s in (`docker inspect -f "{{.State.Health.Status}}" infermesh-backend-1 2^>nul`) do set "_be=%%s"
+set "_beid="
+rem look the container up by compose service so it works whatever the folder/project is called
+for /f "usebackq delims=" %%i in (`docker compose ps -q backend 2^>nul`) do set "_beid=%%i"
+if defined _beid for /f "usebackq delims=" %%s in (`docker inspect -f "{{.State.Health.Status}}" !_beid! 2^>nul`) do set "_be=%%s"
 if /i not "!_be!"=="healthy" ( call :sleep 3 & goto waitbe )
 
 echo [..] Seeding demo data if the DB is empty...

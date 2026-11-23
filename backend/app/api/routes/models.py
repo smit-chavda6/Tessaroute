@@ -4,11 +4,11 @@ SDKs and tools (LangChain, IDE plugins, ``client.models.list()``) call this to
 discover what they can send as ``model``. It lists, for configured providers
 only:
 
-* the catalog aliases (``smart`` / ``balanced`` / ``fast``), ``owned_by: "infermesh"``
+* the catalog aliases (``smart`` / ``balanced`` / ``fast``), ``owned_by: "tessaroute"``
 * each provider's configured default model
 * every concrete model the catalog maps for that provider
 
-Each entry carries an ``infermesh`` extension object (provider, per-1k pricing,
+Each entry carries a ``tessaroute`` extension object (provider, per-1k pricing,
 what an alias resolves to). Static: built from config + ``models.yaml`` +
 ``pricing.yaml``, no upstream calls.
 """
@@ -74,8 +74,8 @@ def build_model_list(
                 "id": alias.name,
                 "object": "model",
                 "created": 0,
-                "owned_by": "infermesh",
-                "infermesh": {
+                "owned_by": "tessaroute",
+                "tessaroute": {
                     "type": "alias",
                     "description": alias.description,
                     "resolves_to": resolves,
@@ -95,7 +95,7 @@ def build_model_list(
                     "object": "model",
                     "created": 0,
                     "owned_by": p,
-                    "infermesh": {
+                    "tessaroute": {
                         "type": "model",
                         "provider": p,
                         "default": model == defaults[p],

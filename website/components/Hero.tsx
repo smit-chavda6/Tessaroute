@@ -45,7 +45,7 @@ export function Hero() {
           </motion.h1>
 
           <motion.p {...rise(0.3)} className="mt-7 max-w-[34rem] text-[1.1rem] leading-relaxed text-muted lg:mt-[min(1.75rem,3svh)]">
-            InferMesh is an OpenAI-compatible gateway in front of OpenAI, Anthropic, Gemini and Azure. It routes
+            Tessaroute is an OpenAI-compatible gateway in front of OpenAI, Anthropic, Gemini and Azure. It routes
             each request to the right provider, falls back at the same quality tier, caches, rate-limits and
             prices every call.
           </motion.p>

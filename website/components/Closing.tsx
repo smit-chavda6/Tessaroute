@@ -186,14 +186,14 @@ export function Footer() {
         <div className="flex items-center gap-3">
           <Logo size={24} />
           <div>
-            <p className="font-display font-semibold">InferMesh</p>
+            <p className="font-display font-semibold">Tessaroute</p>
             <p className="text-xs text-faint">Multi-provider LLM gateway and observability dashboard</p>
           </div>
         </div>
         <p className="font-mono text-xs text-faint">FastAPI · React · Postgres · Redis</p>
         <a href={REPO_URL} target="_blank" rel="noopener" className="inline-flex items-center gap-2 text-sm text-muted transition hover:text-ink">
           <Icon name="github" />
-          smit-chavda6/InferMesh
+          smit-chavda6/Tessaroute
         </a>
       </div>
     </footer>

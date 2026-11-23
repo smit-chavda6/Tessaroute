@@ -233,11 +233,11 @@ async def test_models_endpoint_lists_aliases_and_models(client: AsyncClient) -> 
     by_id = {m["id"]: m for m in body["data"]}
     assert {"smart", "balanced", "fast"} <= set(by_id)
     balanced = by_id["balanced"]
-    assert balanced["owned_by"] == "infermesh"
-    assert balanced["infermesh"]["resolves_to"]["anthropic"] == "claude-sonnet-5-5"
+    assert balanced["owned_by"] == "tessaroute"
+    assert balanced["tessaroute"]["resolves_to"]["anthropic"] == "claude-sonnet-5-5"
     sonnet = by_id["claude-sonnet-5-5"]
     assert sonnet["owned_by"] == "anthropic"
-    assert sonnet["infermesh"]["pricing"]["input_per_1k_usd"] == pytest.approx(0.002)
+    assert sonnet["tessaroute"]["pricing"]["input_per_1k_usd"] == pytest.approx(0.002)
 
 
 async def test_chat_with_alias_reports_served_and_requested_model(client: AsyncClient) -> None:

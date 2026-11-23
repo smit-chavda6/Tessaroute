@@ -135,7 +135,7 @@ export function CostCalculator() {
               <div className="grid gap-5">
                 {[
                   { label: "Calling the provider directly", v: direct, good: false },
-                  { label: "Through InferMesh", v: gw, good: true },
+                  { label: "Through Tessaroute", v: gw, good: true },
                 ].map((row) => (
                   <div key={row.label} className="grid gap-2">
                     <div className="flex justify-between gap-3 text-sm">

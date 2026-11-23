@@ -44,7 +44,7 @@ export default function App() {
           <Loader2 className="size-5 animate-spin" />
         </div>
         <div className="flex flex-col items-center gap-1 text-center">
-          <span className="text-sm font-semibold tracking-tight text-text">InferMesh</span>
+          <span className="text-sm font-semibold tracking-tight text-text">Tessaroute</span>
           <span className="text-xs text-text-muted">Connecting to gateway console…</span>
         </div>
       </div>

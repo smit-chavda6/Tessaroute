@@ -8,11 +8,11 @@ const sans = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swa
 const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "InferMesh · Multi-provider LLM gateway",
+  title: "Tessaroute · Multi-provider LLM gateway",
   description:
     "One OpenAI-compatible endpoint in front of OpenAI, Anthropic, Gemini and Azure. Model aliases, same-tier fallback, circuit breakers, caching, rate limits, cost tracking and an observability dashboard.",
   openGraph: {
-    title: "InferMesh",
+    title: "Tessaroute",
     description: "One endpoint. Every model.",
     images: ["/screenshots/overview.png"],
   },

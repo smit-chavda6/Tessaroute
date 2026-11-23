@@ -1,16 +1,16 @@
-# InferMesh — Multi-Provider LLM Gateway & Observability Platform
+# Tessaroute — Multi-Provider LLM Gateway & Observability Platform
 
 A production-shaped LLM gateway that routes OpenAI-compatible chat-completion
 requests across **OpenAI / Azure OpenAI, Anthropic, Google Gemini, and Azure AI
 Foundry** with retries, fallback, response caching and rate-limiting — plus a
-React/TypeScript observability dashboard ("InferMesh") that runs entirely off real
+React/TypeScript observability dashboard ("Tessaroute") that runs entirely off real
 gateway data.
 
 The build is complete (12 phases — see [`PROGRESS.md`](./PROGRESS.md)). Spec and
 phase definitions live in [`docs/SPEC.md`](./docs/SPEC.md); a new session starts
 from [`CLAUDE.md`](./CLAUDE.md).
 
-**Website:** [infermesh-delta.vercel.app](https://infermesh-delta.vercel.app) (showcase site, source in [`website/`](./website))
+**Website:** [tessaroute.vercel.app](https://tessaroute.vercel.app) (showcase site, source in [`website/`](./website))
 
 ![Dashboard overview](docs/screenshots/overview.png)
 

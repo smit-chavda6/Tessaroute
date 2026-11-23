@@ -35,7 +35,7 @@ export function LoginPage() {
           <div className="grid size-7 place-items-center rounded-md bg-accent text-accent-fg shadow-sm">
             <Logo className="size-5" />
           </div>
-          <span className="text-sm font-semibold tracking-tight text-text">InferMesh</span>
+          <span className="text-sm font-semibold tracking-tight text-text">Tessaroute</span>
         </div>
 
         {/* Header Right Actions: Status Indicator & Theme Toggle */}

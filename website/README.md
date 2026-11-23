@@ -1,6 +1,6 @@
-# InferMesh website
+# Tessaroute website
 
-The showcase / landing page for InferMesh. Next.js 16 (App Router, static
+The showcase / landing page for Tessaroute. Next.js 16 (App Router, static
 export), React 19, Tailwind v4, Motion and [cobe](https://github.com/shuding/cobe)
 (WebGL globe). One deliberate dark "deep space" theme. No backend: every
 interactive piece (globe, request trace, alias explorer, failover simulator,
@@ -41,7 +41,7 @@ here too. Screenshots in `public/screenshots/` are copies of `docs/screenshots/`
 
 ## Deploy
 
-Live at **https://infermesh-delta.vercel.app**. The Vercel project `infermesh`
+Live at **https://tessaroute.vercel.app**. The Vercel project `tessaroute`
 (team `smit-chavda-projects`) is linked to this repo with Root Directory
 `website`, so every push to `master` deploys to production.
 

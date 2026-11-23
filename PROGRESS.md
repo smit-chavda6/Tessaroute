@@ -799,7 +799,7 @@ proxy.**
 
 **Status: COMPLETE — a 4th provider, `azure_foundry`, live-verified end-to-end
 against the real Foundry resource (`complete` / `stream` / `health` / cost /
-persistence / dashboard filtering). Frontend renamed to "InferMesh" and every
+persistence / dashboard filtering). Frontend renamed to "Tessaroute" and every
 provider surface now lists Foundry.**
 
 ### Why it was pursued
@@ -844,10 +844,10 @@ in the backend explicit instead of a 3-tuple copied in five places.
   the `set -a && . ./.env` dev recipe — the quotes are stripped); it's a
   process-env / explicit-routing opt-in and that's noted in the file.
 
-### Done — frontend (also: renamed to **InferMesh**)
-- Brand: `index.html` `<title>` → `InferMesh` (+ meta description); sidebar and
-  login wordmark → `InferMesh`; `package.json` / `package-lock.json` name →
-  `infermesh-dashboard`.
+### Done — frontend (also: renamed to **Tessaroute**)
+- Brand: `index.html` `<title>` → `Tessaroute` (+ meta description); sidebar and
+  login wordmark → `Tessaroute`; `package.json` / `package-lock.json` name →
+  `tessaroute-dashboard`.
 - `lib/utils.ts` — `PROVIDERS` (id + label, mirrors `ALL_PROVIDERS`) and
   `providerLabel(id)` helper (`azure_foundry` → "Azure AI Foundry", generic
   fallback prettifies unknown ids). `api/types.ts` `ProviderName` extended.
@@ -885,7 +885,7 @@ in the backend explicit instead of a 3-tuple copied in five places.
     row. `/v1/providers` and `/v1/system/health` list it `enabled:true` /
     healthy. `providers_available=['openai','gemini','azure_foundry']` at startup.
   - Full dashboard endpoint sweep through the Vite proxy → all 200; page
-    `<title>` served as `InferMesh`.
+    `<title>` served as `Tessaroute`.
 
 ### Deviations / notes
 - **Visual render still not screenshot-verified** — browser-automation extension
@@ -1015,7 +1015,7 @@ polish, and measured perf against the 100k-row seed. Both gates green.**
 All verified with the full gate (backend ruff+mypy+pytest, frontend
 tsc+oxlint+vitest+Playwright) and committed one change at a time.
 
-- **`feat(brand)` / login rework** — new InferMesh mark (a routing-hub glyph) as
+- **`feat(brand)` / login rework** — new Tessaroute mark (a routing-hub glyph) as
   `src/components/Logo.tsx` + full favicon set (svg, 32/192 png, apple-touch,
   `site.webmanifest`); the login screen was reworked to a centered console card
   with a live "Operational" pill, show/hide password, and a submit progress bar.
@@ -1083,7 +1083,7 @@ tsc+oxlint+vitest+Playwright) and committed one change at a time.
     `gateway.requested_model` when they differ.
   - **`GET /v1/models`** (project-key auth): OpenAI-compatible list of aliases
     (with `resolves_to`) + each configured provider's default and catalog
-    models, each with an `infermesh` object (provider, per-1k pricing,
+    models, each with an `tessaroute` object (provider, per-1k pricing,
     estimated flag).
   - Tests: `tests/test_model_catalog.py` (24): catalog parsing/validation, a
     guard that every catalog model has a confirmed non-estimated price,
@@ -1118,3 +1118,14 @@ tsc+oxlint+vitest+Playwright) and committed one change at a time.
   some point, 0 overlaps, 0 labels outside the globe. Request trace moved to
   its own section. No console errors/warnings, no horizontal overflow at
   1440 / 1024 / 390 px; `tsc` + `next build` clean.
+- **`chore` rename: InferMesh → Tessaroute** (2026-11-23) — "InferMesh" is a
+  common name for this kind of gateway. "Tessaroute" (*tessera* + route) was
+  checked first: free on npm and PyPI, 0 GitHub repos, `.com`/`.dev`/`.ai`
+  domains unregistered, no product found by web search. Renamed in code,
+  tests, the `/v1/models` extension field (`tessaroute`), dashboard branding,
+  website, CI image tags, Windows launchers and docs (this log included; git
+  history keeps the old name). Launchers now find containers via
+  `docker compose ps -q <service>` instead of a folder-derived container
+  name, and `.gitattributes` gives `*.bat` CRLF endings. Vercel project
+  renamed to `tessaroute`; public URL https://tessaroute.vercel.app. The
+  local folder is still `InferMesh` (Docker volumes are keyed on it).

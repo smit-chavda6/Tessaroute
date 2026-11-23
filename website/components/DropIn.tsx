@@ -34,7 +34,7 @@ print(resp.model_extra["gateway"]["model"])  # gpt-6.1-terra`,
           base_url=<S>&quot;http://localhost:8000/v1&quot;</S>
         </HL>
         ,{"\n"}
-        {"    "}api_key=<S>&quot;sk-gw-…&quot;</S>, <C># an InferMesh project key</C>
+        {"    "}api_key=<S>&quot;sk-gw-…&quot;</S>, <C># a Tessaroute project key</C>
         {"\n)\n\n"}
         resp = client.chat.completions.create({"\n"}
         {"    "}
@@ -56,7 +56,7 @@ print(resp.model_extra["gateway"]["model"])  # gpt-6.1-terra`,
     label: "typescript",
     raw: `import OpenAI from "openai";
 
-const client = new OpenAI({ baseURL: "http://localhost:8000/v1", apiKey: process.env.INFERMESH_KEY });
+const client = new OpenAI({ baseURL: "http://localhost:8000/v1", apiKey: process.env.TESSAROUTE_KEY });
 
 const stream = await client.chat.completions.create({
   model: "fast",
@@ -72,7 +72,7 @@ for await (const chunk of stream) process.stdout.write(chunk.choices[0]?.delta?.
         <HL>
           baseURL: <S>&quot;http://localhost:8000/v1&quot;</S>
         </HL>
-        ,{"\n  "}apiKey: process.env.INFERMESH_KEY,{"\n"}
+        ,{"\n  "}apiKey: process.env.TESSAROUTE_KEY,{"\n"}
         {"});\n\n"}
         <K>const</K> stream = <K>await</K> client.chat.completions.create({"{"}
         {"\n  "}
@@ -90,12 +90,12 @@ for await (const chunk of stream) process.stdout.write(chunk.choices[0]?.delta?.
   {
     id: "curl",
     label: "curl",
-    raw: `curl http://localhost:8000/v1/models -H "Authorization: Bearer $INFERMESH_KEY" | jq '.data[].id'`,
+    raw: `curl http://localhost:8000/v1/models -H "Authorization: Bearer $TESSAROUTE_KEY" | jq '.data[].id'`,
     node: (
       <>
         <C># list aliases + models, with pricing</C>
         {"\n"}curl <HL>http://localhost:8000/v1/models</HL> \{"\n  "}-H{" "}
-        <S>&quot;Authorization: Bearer $INFERMESH_KEY&quot;</S> | jq <S>&apos;.data[].id&apos;</S>
+        <S>&quot;Authorization: Bearer $TESSAROUTE_KEY&quot;</S> | jq <S>&apos;.data[].id&apos;</S>
         {"\n\n"}
         <C>&quot;smart&quot;{"\n"}&quot;balanced&quot;{"\n"}&quot;fast&quot;{"\n"}&quot;gpt-6.1-terra&quot;{"\n"}&quot;claude-sonnet-5-5&quot;{"\n"}…</C>
       </>

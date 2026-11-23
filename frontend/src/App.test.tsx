@@ -45,6 +45,6 @@ describe("App auth gate", () => {
     renderWithProviders(<App />, { route: "/" });
     // sidebar nav is present
     expect(screen.getByRole("navigation")).toBeInTheDocument();
-    expect(screen.getAllByText("InferMesh").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Tessaroute").length).toBeGreaterThan(0);
   });
 });

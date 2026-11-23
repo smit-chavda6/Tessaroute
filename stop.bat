@@ -1,14 +1,14 @@
 @echo off
-title InferMesh - stop
+title Tessaroute - stop
 cd /d "%~dp0"
 
 echo(
-echo   Stopping InferMesh...
+echo   Stopping Tessaroute...
 echo(
 
 rem dev-mode server windows
-taskkill /F /FI "WINDOWTITLE eq InferMesh backend*"  >nul 2>&1
-taskkill /F /FI "WINDOWTITLE eq InferMesh frontend*" >nul 2>&1
+taskkill /F /FI "WINDOWTITLE eq Tessaroute backend*"  >nul 2>&1
+taskkill /F /FI "WINDOWTITLE eq Tessaroute frontend*" >nul 2>&1
 rem anything still bound to the dev ports
 for %%p in (8000 5173) do (
   for /f "tokens=5" %%a in ('netstat -ano ^| findstr /r /c:":%%p .*LISTENING"') do taskkill /F /PID %%a >nul 2>&1

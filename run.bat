@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableDelayedExpansion
-title InferMesh - launcher
+title Tessaroute - launcher
 cd /d "%~dp0"
 
 echo(
-echo   InferMesh  -  starting the dev stack
+echo   Tessaroute  -  starting the dev stack
 echo   ----------------------------------------------------------------
 echo(
 
@@ -39,7 +39,10 @@ echo [..] Starting Postgres + Redis...
 docker compose up -d postgres redis || goto :fail
 :waitpg
 set "_pg="
-for /f "usebackq delims=" %%s in (`docker inspect -f "{{.State.Health.Status}}" infermesh-postgres-1 2^>nul`) do set "_pg=%%s"
+set "_pgid="
+rem look the container up by compose service so it works whatever the folder/project is called
+for /f "usebackq delims=" %%i in (`docker compose ps -q postgres 2^>nul`) do set "_pgid=%%i"
+if defined _pgid for /f "usebackq delims=" %%s in (`docker inspect -f "{{.State.Health.Status}}" !_pgid! 2^>nul`) do set "_pg=%%s"
 if /i not "!_pg!"=="healthy" ( call :sleep 2 & goto waitpg )
 echo [ok] Postgres + Redis healthy.
 
@@ -71,8 +74,8 @@ if not exist "frontend\node_modules" (
 rem --- launch -------------------------------------------------------------
 echo(
 echo [..] Opening the gateway and dashboard in new windows...
-start "InferMesh backend  :8000" /D "%~dp0backend"  cmd /k "set AUTH_COOKIE_SECURE=false&& uv run uvicorn app.main:app --host 127.0.0.1 --port 8000"
-start "InferMesh frontend :5173" /D "%~dp0frontend" cmd /k "npm run dev -- --host 127.0.0.1 --strictPort"
+start "Tessaroute backend  :8000" /D "%~dp0backend"  cmd /k "set AUTH_COOKIE_SECURE=false&& uv run uvicorn app.main:app --host 127.0.0.1 --port 8000"
+start "Tessaroute frontend :5173" /D "%~dp0frontend" cmd /k "npm run dev -- --host 127.0.0.1 --strictPort"
 
 echo [..] Waiting for the dashboard...
 set /a _tries=0

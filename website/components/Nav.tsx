@@ -68,7 +68,7 @@ export function Nav() {
         >
           <a href="#top" className="flex items-center gap-2.5 font-display text-[1.05rem] font-semibold tracking-tight">
             <Logo size={26} />
-            InferMesh
+            Tessaroute
           </a>
           <nav aria-label="Sections" className="mx-auto hidden items-center gap-0.5 lg:flex">
             {SECTIONS.map((s) => (

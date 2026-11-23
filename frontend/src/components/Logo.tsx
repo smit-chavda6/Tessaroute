@@ -1,5 +1,5 @@
 /**
- * InferMesh brand mark — a gateway hub linked to three provider nodes (the
+ * Tessaroute brand mark — a gateway hub linked to three provider nodes (the
  * "inference mesh"). Pure `currentColor` so it takes the colour of its context:
  * drop it in the accent tile (`text-accent-fg`) or use it standalone
  * (`text-accent`).

@@ -1,6 +1,6 @@
 {
-  "name": "InferMesh",
-  "short_name": "InferMesh",
+  "name": "Tessaroute",
+  "short_name": "Tessaroute",
   "description": "Multi-provider LLM gateway & observability dashboard",
   "start_url": "/",
   "display": "standalone",

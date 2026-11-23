@@ -23,7 +23,9 @@ sign-out fix, Prometheus `/metrics` + `/v1/version`, per-provider **circuit
 breaker**, dashboard Docker image + `docker compose --profile full`, route-level
 code splitting, toasts, CSV export, **current models + model catalog**:
 `backend/models.yaml` aliases `smart`/`balanced`/`fast`, tier-aware fallback,
-model→provider inference, `GET /v1/models`). Pushed to `github.com/smit-chavda6/InferMesh`.
+model→provider inference, `GET /v1/models`). **Renamed InferMesh → Tessaroute** (2026-11-23); showcase
+site in `website/` is live at https://tessaroute.vercel.app (Vercel project
+`tessaroute`, auto-deploys on push to `master`). Pushed to `github.com/smit-chavda6/Tessaroute`.
 
 - **Backend** (`backend/`): FastAPI async gateway, live-verified against the Azure
   + Gemini keys in `backend/.env`. **Four** providers (`openai`/azure,
@@ -33,7 +35,7 @@ model→provider inference, `GET /v1/models`). Pushed to `github.com/smit-chavda
   Gate: `uv run ruff check . && uv run ruff format --check . && uv run mypy &&
   uv run pytest` → **197 passed / 9 deselected** (`-m "not live"` in CI).
 - **Frontend** (`frontend/`, Vite + Tailwind v4 + TanStack Query + Recharts +
-  Radix; branded **InferMesh**): every §6–§24 page on a real §27 endpoint through
+  Radix; branded **Tessaroute**): every §6–§24 page on a real §27 endpoint through
   a thin typed client; route-level code-split. Gate: `npx tsc -b --noEmit &&
   npm run build && npm run lint && npm run test` (**43 Vitest** tests). E2E:
   `npx playwright test` (**28** — §31 journey + per-page axe a11y + perf +
