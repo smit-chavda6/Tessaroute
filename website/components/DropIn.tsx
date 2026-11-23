@@ -3,8 +3,7 @@
 import { motion } from "motion/react";
 import { useState, type ReactNode } from "react";
 import { CostChart, FallbackRoute, LatencyGauge, StreamChat, TierMatrix } from "./Illustrations";
-import { Glyph } from "./Glyphs";
-import { CopyButton, Reveal, SectionHead, SpotlightCard } from "./ui";
+import { CopyButton, Reveal, SectionHead } from "./ui";
 
 const S = ({ children }: { children: ReactNode }) => <span className="text-[#e9c58a]">{children}</span>;
 const C = ({ children }: { children: ReactNode }) => <span className="text-term-muted">{children}</span>;
@@ -106,35 +105,30 @@ for await (const chunk of stream) process.stdout.write(chunk.choices[0]?.delta?.
 
 const BENTO = [
   {
-    glyph: "tiers" as const,
     title: "Ask for a tier, not a model",
     text: "smart, balanced and fast resolve per provider from one YAML file. A model release is a config change.",
     art: <TierMatrix />,
     span: "lg:col-span-3",
   },
   {
-    glyph: "route" as const,
     title: "Fallback that keeps the quality",
     text: "When a provider fails, the next hop runs the same-tier model, and every attempt is listed in the response.",
     art: <FallbackRoute />,
     span: "lg:col-span-3",
   },
   {
-    glyph: "pulse" as const,
     title: "Cost on every call",
     text: "Priced against the model that actually served it, from a versioned table.",
     art: <CostChart />,
     span: "lg:col-span-2",
   },
   {
-    glyph: "bolt" as const,
     title: "Streaming passes through",
     text: "Server-sent events end to end. Usage is still recorded when the stream closes.",
     art: <StreamChat />,
     span: "lg:col-span-2",
   },
   {
-    glyph: "mesh" as const,
     title: "Latency you can scrape",
     text: "Prometheus /metrics exposes latency histograms, tokens, retries and breaker state.",
     art: <LatencyGauge />,
@@ -203,20 +197,13 @@ export function DropIn() {
       <div className="wrap mt-16 grid gap-4 lg:grid-cols-6">
         {BENTO.map((b, i) => (
           <Reveal key={b.title} delay={i * 0.06} className={b.span}>
-            <SpotlightCard as="article" className="flex h-full flex-col overflow-hidden">
-              <div className="relative border-b border-line bg-[radial-gradient(120%_90%_at_50%_0%,var(--accent-soft),transparent_70%)] px-5 pb-3 pt-5">
-                {b.art}
+            <article className="flex h-full flex-col rounded-2xl border border-white/[0.07] bg-[rgb(10,12,22)] transition-colors duration-300 hover:border-white/15">
+              <div className="px-6 pb-2 pt-6">{b.art}</div>
+              <div className="mt-auto border-t border-white/[0.06] px-6 py-5">
+                <h3 className="text-[0.98rem] font-medium tracking-tight">{b.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-faint">{b.text}</p>
               </div>
-              <div className="flex gap-3.5 p-5">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-line-2 bg-bg-2">
-                  <Glyph name={b.glyph} className="h-[18px] w-[18px]" />
-                </span>
-                <div className="min-w-0">
-                  <h3 className="font-display text-[1.05rem] font-semibold leading-snug">{b.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-muted">{b.text}</p>
-                </div>
-              </div>
-            </SpotlightCard>
+            </article>
           </Reveal>
         ))}
       </div>
