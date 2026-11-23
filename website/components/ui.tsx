@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { Glyph } from "./Glyphs";
 
 /** Fades/slides children in once they scroll into view. Content is in the DOM
  *  from the first render; reduced-motion users get it with no movement. */
@@ -43,7 +44,10 @@ export function SectionHead({
 }) {
   return (
     <Reveal className={`mb-12 grid max-w-2xl gap-4 ${center ? "mx-auto text-center" : ""}`}>
-      <p className="eyebrow">{eyebrow}</p>
+      <p className={`eyebrow flex items-center gap-2 ${center ? "justify-center" : ""}`}>
+        <Glyph name="mesh" className="h-4 w-4" />
+        {eyebrow}
+      </p>
       <h2 className="font-display text-[clamp(2rem,4.2vw,3rem)] font-semibold leading-[1.05] tracking-[-0.03em]">
         {title}
       </h2>

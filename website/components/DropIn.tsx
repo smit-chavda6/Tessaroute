@@ -2,7 +2,9 @@
 
 import { motion } from "motion/react";
 import { useState, type ReactNode } from "react";
-import { CopyButton, Icon, Reveal, SectionHead, SpotlightCard } from "./ui";
+import { CostSpark, FallbackPath, LatencyBars, StreamTokens, TierStack } from "./Illustrations";
+import { Glyph } from "./Glyphs";
+import { CopyButton, Reveal, SectionHead, SpotlightCard } from "./ui";
 
 const S = ({ children }: { children: ReactNode }) => <span className="text-[#e9c58a]">{children}</span>;
 const C = ({ children }: { children: ReactNode }) => <span className="text-term-muted">{children}</span>;
@@ -102,18 +104,50 @@ for await (const chunk of stream) process.stdout.write(chunk.choices[0]?.delta?.
   },
 ];
 
-const FEATURES = [
-  { icon: "layers", title: "Ask for a tier, not a model", text: "smart, balanced and fast resolve per provider from one YAML file." },
-  { icon: "pulse", title: "Fallback you can see", text: "Each attempt is listed with its outcome, retries and latency." },
-  { icon: "coin", title: "Cost on every call", text: "Priced from a versioned table, against the model that actually served it." },
+const BENTO = [
+  {
+    glyph: "tiers" as const,
+    title: "Ask for a tier, not a model",
+    text: "smart, balanced and fast resolve per provider from one YAML file. A model release is a config change.",
+    art: <TierStack />,
+    span: "lg:col-span-3",
+  },
+  {
+    glyph: "route" as const,
+    title: "Fallback that keeps the quality",
+    text: "When a provider fails, the next hop runs the same-tier model, and every attempt is listed in the response.",
+    art: <FallbackPath />,
+    span: "lg:col-span-3",
+  },
+  {
+    glyph: "pulse" as const,
+    title: "Cost on every call",
+    text: "Priced against the model that actually served it, from a versioned table.",
+    art: <CostSpark />,
+    span: "lg:col-span-2",
+  },
+  {
+    glyph: "bolt" as const,
+    title: "Streaming passes through",
+    text: "Server-sent events end to end. Usage is still recorded when the stream closes.",
+    art: <StreamTokens />,
+    span: "lg:col-span-2",
+  },
+  {
+    glyph: "mesh" as const,
+    title: "Metrics you can scrape",
+    text: "Prometheus /metrics with latency histograms, tokens, retries and breaker state.",
+    art: <LatencyBars />,
+    span: "lg:col-span-2",
+  },
 ];
 
 export function DropIn() {
   const [tab, setTab] = useState(0);
   const cur = SNIPPETS[tab]!;
   return (
-    <section className="relative border-t border-line py-28" id="dropin">
-      <div className="wrap grid items-start gap-14 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+    <section className="rule relative py-28" id="dropin">
+      <div className="wrap grid items-center gap-14 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <div className="min-w-0">
           <SectionHead
             eyebrow="Drop-in"
@@ -130,25 +164,10 @@ export function DropIn() {
               </>
             }
           />
-          <div className="grid gap-3">
-            {FEATURES.map((f, i) => (
-              <Reveal key={f.title} delay={i * 0.08}>
-                <SpotlightCard className="flex gap-4 p-4">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-accent-soft text-accent ring-1 ring-accent/20">
-                    <Icon name={f.icon} className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <h3 className="font-display text-[1.05rem] font-semibold">{f.title}</h3>
-                    <p className="text-sm text-muted">{f.text}</p>
-                  </div>
-                </SpotlightCard>
-              </Reveal>
-            ))}
-          </div>
         </div>
 
-        <Reveal delay={0.1} className="min-w-0 lg:sticky lg:top-24">
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-term text-term-ink shadow-[0_30px_80px_-30px_rgba(0,0,0,0.7)]">
+        <Reveal delay={0.1} className="min-w-0">
+          <div className="ring-glow rounded-2xl border border-white/10 bg-term text-term-ink shadow-[0_30px_80px_-30px_rgba(0,0,0,0.7)]">
             <div className="flex items-center gap-1 border-b border-white/[0.07] px-2 py-2">
               <div role="tablist" aria-label="Client language" className="flex gap-1">
                 {SNIPPETS.map((s, i) => (
@@ -179,6 +198,27 @@ export function DropIn() {
             </motion.pre>
           </div>
         </Reveal>
+      </div>
+
+      <div className="wrap mt-16 grid gap-4 lg:grid-cols-6">
+        {BENTO.map((b, i) => (
+          <Reveal key={b.title} delay={i * 0.06} className={b.span}>
+            <SpotlightCard as="article" className="flex h-full flex-col overflow-hidden">
+              <div className="relative border-b border-line bg-[radial-gradient(120%_90%_at_50%_0%,var(--accent-soft),transparent_70%)] px-5 pb-3 pt-5">
+                {b.art}
+              </div>
+              <div className="flex gap-3.5 p-5">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-line-2 bg-bg-2">
+                  <Glyph name={b.glyph} className="h-[18px] w-[18px]" />
+                </span>
+                <div className="min-w-0">
+                  <h3 className="font-display text-[1.05rem] font-semibold leading-snug">{b.title}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-muted">{b.text}</p>
+                </div>
+              </div>
+            </SpotlightCard>
+          </Reveal>
+        ))}
       </div>
     </section>
   );

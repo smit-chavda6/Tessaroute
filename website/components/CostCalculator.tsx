@@ -83,7 +83,7 @@ export function CostCalculator() {
   }, [model, req, tin, tout, hit]);
 
   return (
-    <section className="relative border-t border-line bg-bg-2/50 py-28" id="cost">
+    <section className="rule relative bg-bg-2/50 py-28" id="cost">
       <div className="wrap">
         <SectionHead
           eyebrow="Cost"

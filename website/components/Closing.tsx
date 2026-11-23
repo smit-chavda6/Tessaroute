@@ -25,7 +25,7 @@ function CountUp({ value, decimals, suffix }: { value: number; decimals: number;
 
 export function Stats() {
   return (
-    <section className="border-t border-line py-20" aria-label="Project in numbers">
+    <section className="rule py-20" aria-label="Project in numbers">
       <div className="wrap">
         <div className="grid grid-cols-2 overflow-hidden rounded-3xl border border-line bg-panel lg:grid-cols-5">
           {STATS.map((s, i) => (
@@ -54,7 +54,7 @@ export function BuildLog() {
   const fill = useSpring(scrollYProgress, { stiffness: 120, damping: 28 });
 
   return (
-    <section className="relative border-t border-line bg-bg-2/50 py-28" id="build">
+    <section className="rule relative bg-bg-2/50 py-28" id="build">
       <div className="wrap grid gap-14 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
         <div className="min-w-0 lg:sticky lg:top-28 lg:self-start">
           <SectionHead
@@ -125,7 +125,7 @@ export function BuildLog() {
 export function Quickstart() {
   const reduce = useReducedMotion();
   return (
-    <section className="relative overflow-hidden border-t border-line py-28" id="quickstart">
+    <section className="rule relative overflow-hidden py-28" id="quickstart">
       <div className="pointer-events-none absolute -right-40 top-10 h-[500px] w-[700px] rounded-full bg-[radial-gradient(closest-side,var(--glow),transparent)] opacity-70 blur-3xl" />
       <div className="wrap relative grid items-center gap-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <div className="min-w-0">
@@ -139,7 +139,7 @@ export function Quickstart() {
               href={REPO_URL}
               target="_blank"
               rel="noopener"
-              className="btn-primary group inline-flex items-center gap-2 rounded-xl px-5 py-3 font-medium transition hover:-translate-y-0.5"
+              className="btn-primary shine group inline-flex items-center gap-2 rounded-xl px-5 py-3 font-medium transition hover:-translate-y-0.5"
             >
               <Icon name="github" />
               Star it on GitHub
@@ -148,7 +148,7 @@ export function Quickstart() {
           </Reveal>
         </div>
         <Reveal delay={0.1} className="min-w-0">
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-term text-term-ink shadow-[0_30px_80px_-30px_rgba(0,0,0,0.7)]">
+          <div className="ring-glow rounded-2xl border border-white/10 bg-term text-term-ink shadow-[0_30px_80px_-30px_rgba(0,0,0,0.7)]">
             <div className="flex items-center gap-3 border-b border-white/[0.07] px-4 py-2.5">
               <span className="font-mono text-xs text-term-muted">bash</span>
               <CopyButton text={QUICKSTART.join("\n")} label="Copy all" className="ml-auto" />

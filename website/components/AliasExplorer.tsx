@@ -20,7 +20,7 @@ export function AliasExplorer() {
   const skipped = served ? ORDER.slice(0, ORDER.indexOf(served)) : [...ORDER];
 
   return (
-    <section className="relative border-t border-line bg-bg-2/50 py-28" id="aliases">
+    <section className="rule relative bg-bg-2/50 py-28" id="aliases">
       <div className="wrap">
         <SectionHead
           eyebrow="Model catalog"

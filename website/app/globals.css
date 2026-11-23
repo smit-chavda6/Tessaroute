@@ -235,3 +235,101 @@ input[type="range"]::-moz-range-thumb {
 
 .scrollbar-none { scrollbar-width: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* ---------------------------------------------------------------------------
+   Finishing layer: animated gradient borders, section rules, button shine
+   --------------------------------------------------------------------------- */
+
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* 1px rotating gradient border, drawn with a masked pseudo-element */
+.ring-glow {
+  position: relative;
+  isolation: isolate;
+}
+.ring-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--angle),
+    transparent 0deg,
+    var(--accent) 60deg,
+    var(--signal) 110deg,
+    transparent 170deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spin-angle 6s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+@keyframes spin-angle {
+  to { --angle: 360deg; }
+}
+
+/* glowing hairline at the top of a section */
+.rule {
+  position: relative;
+}
+.rule::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line-2) 20%, var(--accent) 50%, var(--line-2) 80%, transparent);
+  opacity: 0.8;
+}
+.rule::after {
+  content: "";
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  width: min(560px, 70%);
+  height: 80px;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, var(--glow), transparent);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* light sweep across primary CTAs on hover */
+.shine {
+  position: relative;
+  overflow: hidden;
+}
+.shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%) skewX(-18deg);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.35), transparent);
+  transition: transform 0.7s ease;
+}
+.shine:hover::after { transform: translateX(120%) skewX(-18deg); }
+
+/* glass panel */
+.glass {
+  background: color-mix(in srgb, var(--panel) 72%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+/* animated dash flow for illustration paths */
+@keyframes dash-flow { to { stroke-dashoffset: -24; } }
+.flow { stroke-dasharray: 4 8; animation: dash-flow 1.2s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ring-glow::before, .flow { animation: none; }
+  .shine::after { display: none; }
+}

@@ -139,7 +139,7 @@ export function Nav() {
               href={REPO_URL}
               target="_blank"
               rel="noopener"
-              className="btn-primary flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-medium"
+              className="btn-primary shine flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-medium"
             >
               <Icon name="github" />
               <span className="hidden sm:inline">GitHub</span>

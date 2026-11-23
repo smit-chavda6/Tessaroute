@@ -2,7 +2,8 @@
 
 import { AnimatePresence, motion, useInView, useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Icon, Reveal, SectionHead } from "./ui";
+import { Glyph } from "./Glyphs";
+import { Reveal, SectionHead } from "./ui";
 
 // Mirrors the gateway: try providers in FALLBACK_CHAIN order; 5 consecutive
 // failures open a provider's circuit; after a cooldown one probe is let through
@@ -122,7 +123,7 @@ export function FailoverSim() {
   const rate = total ? Math.round((stats.ok / total) * 100) : 100;
 
   return (
-    <section className="relative border-t border-line bg-bg-2/50 py-28" id="simulator">
+    <section className="rule relative bg-bg-2/50 py-28" id="simulator">
       <div className="wrap">
         <SectionHead
           eyebrow="Failover, live"
@@ -132,8 +133,8 @@ export function FailoverSim() {
 
         <div ref={box} className="grid gap-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
           <Reveal className="min-w-0">
-            <div className="relative overflow-hidden rounded-2xl border border-line bg-panel">
-              <div className="grid-bg absolute inset-0 opacity-60" aria-hidden="true" />
+            <div className="ring-glow relative rounded-2xl border border-line bg-panel">
+              <div className="grid-bg absolute inset-0 rounded-2xl opacity-60" aria-hidden="true" />
               <svg viewBox={`0 0 ${VB.w} ${VB.h}`} className="relative block h-auto w-full" role="img" aria-label="Gateway routing diagram">
                 {/* client -> hub */}
                 <line x1={CLIENT.x} y1={CLIENT.y} x2={HUB.x} y2={HUB.y} stroke="var(--line-2)" strokeWidth="1.5" strokeDasharray="4 5" />
@@ -302,7 +303,7 @@ export function FailoverSim() {
                   onClick={() => setRunning((r) => !r)}
                   className="inline-flex items-center gap-2 rounded-lg border border-line bg-panel px-3.5 py-2 text-sm transition hover:border-line-2"
                 >
-                  <Icon name={running ? "pause" : "play"} />
+                  <Glyph name={running ? "pause" : "play"} className="h-4 w-4" />
                   {running ? "Pause" : "Run"}
                 </button>
               )}
@@ -311,7 +312,7 @@ export function FailoverSim() {
                 onClick={tick}
                 className="inline-flex items-center gap-2 rounded-lg border border-line bg-panel px-3.5 py-2 text-sm transition hover:border-line-2"
               >
-                <Icon name="zap" />
+                <Glyph name="bolt" className="h-4 w-4" />
                 Send one request
               </button>
               <button
@@ -319,7 +320,7 @@ export function FailoverSim() {
                 onClick={reset}
                 className="inline-flex items-center gap-2 rounded-lg border border-line bg-panel px-3.5 py-2 text-sm transition hover:border-line-2"
               >
-                <Icon name="reset" />
+                <Glyph name="reset" className="h-4 w-4" />
                 Reset
               </button>
             </div>

@@ -74,7 +74,7 @@ export function Hero() {
               href={REPO_URL}
               target="_blank"
               rel="noopener"
-              className="btn-primary group inline-flex items-center gap-2 rounded-xl px-5 py-3 text-[0.95rem] font-medium transition hover:-translate-y-0.5"
+              className="btn-primary shine group inline-flex items-center gap-2 rounded-xl px-5 py-3 text-[0.95rem] font-medium transition hover:-translate-y-0.5"
             >
               <Icon name="github" />
               View the source

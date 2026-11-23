@@ -31,7 +31,7 @@ export function DashboardTour() {
   }, [i, reduce, paused, inView]);
 
   return (
-    <section className="relative overflow-hidden border-t border-line py-28" id="dashboard">
+    <section className="rule relative overflow-hidden py-28" id="dashboard">
       <div className="pointer-events-none absolute left-1/2 top-40 h-[600px] w-[1000px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,var(--glow),transparent)] opacity-60 blur-3xl" />
       <div className="wrap relative">
         <SectionHead

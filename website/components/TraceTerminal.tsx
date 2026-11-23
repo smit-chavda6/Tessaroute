@@ -168,6 +168,7 @@ export function TraceTerminal() {
   return (
     <div className="relative">
       <div className="absolute -inset-6 -z-10 rounded-[32px] bg-[radial-gradient(closest-side,var(--glow),transparent)] blur-2xl" />
+      <div className="ring-glow rounded-2xl">
       <div className="overflow-hidden rounded-2xl border border-white/10 bg-term font-mono text-[0.78rem] text-term-ink shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8)]">
         <div className="flex flex-wrap items-center gap-3 border-b border-white/[0.07] px-4 py-2.5">
           <div className="flex gap-1.5" aria-hidden="true">
@@ -238,6 +239,7 @@ export function TraceTerminal() {
             </motion.div>
           </AnimatePresence>
         </div>
+      </div>
       </div>
     </div>
   );

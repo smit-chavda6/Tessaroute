@@ -22,7 +22,7 @@ export function Pipeline() {
   const pct = (shown / (PIPELINE.length - 1)) * 100;
 
   return (
-    <section className="relative border-t border-line py-28" id="how">
+    <section className="rule relative py-28" id="how">
       <div className="wrap">
         <SectionHead
           eyebrow="How it works"
