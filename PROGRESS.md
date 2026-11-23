@@ -1096,3 +1096,14 @@ tsc+oxlint+vitest+Playwright) and committed one change at a time.
     machine (connection error, the same on the pre-change code), and the Gemini
     free tier returned 503 / 429 (20 req/day/model). Direct probes: all
     new Gemini ids exist (no 404); `gemini-3.5-flash-lite` answered 200.
+- **`feat(website)` showcase site** (2026-11-23) — `website/`: Next.js 16
+  (static export) + React 19 + Tailwind v4 + Motion. Sections: hero (canvas
+  routing mesh, live request-trace terminal), drop-in SDK code, alias explorer
+  (click to fail a provider, see the same-tier plan + `gateway` object),
+  animated pipeline, failover simulator (SVG packets, circuit breaker with
+  threshold 5 + half-open probe), dashboard tour (3D-tilt frame), cost
+  calculator (pricing.yaml rates, USD/INR), stats, build-log timeline,
+  quickstart. Ctrl/⌘K palette, dark/light theme, reduced-motion respected.
+  All facts in `website/lib/data.ts`. Verified: `tsc --noEmit` + `next build`
+  clean; Playwright screenshots at 1440 px (dark + light) and 390 px: no page
+  errors, no horizontal overflow.
