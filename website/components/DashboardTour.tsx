@@ -106,7 +106,7 @@ export function DashboardTour() {
                 </div>
               </div>
               <div className="relative aspect-[16/9.6] bg-bg-2">
-                <AnimatePresence mode="popLayout" initial={false}>
+                <AnimatePresence mode="popLayout">
                   <motion.div
                     key={cur.id}
                     className="absolute inset-0"

@@ -1,11 +1,12 @@
 "use client";
 
 import { AnimatePresence, motion, useScroll, useSpring } from "motion/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { QUICKSTART, REPO_URL } from "@/lib/data";
 import { Icon, Logo } from "./ui";
 
 const SECTIONS = [
+  { id: "trace", label: "Trace" },
   { id: "aliases", label: "Aliases" },
   { id: "how", label: "How it works" },
   { id: "simulator", label: "Failover" },
@@ -14,34 +15,12 @@ const SECTIONS = [
   { id: "build", label: "Build log" },
 ];
 
-function useTheme() {
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
-  useEffect(() => {
-    setTheme(document.documentElement.dataset.theme === "light" ? "light" : "dark");
-  }, []);
-  const toggle = useCallback(() => {
-    setTheme((t) => {
-      const next = t === "dark" ? "light" : "dark";
-      if (next === "light") document.documentElement.dataset.theme = "light";
-      else delete document.documentElement.dataset.theme;
-      try {
-        localStorage.setItem("im-theme", next);
-      } catch {
-        /* storage blocked: theme still applies for this visit */
-      }
-      return next;
-    });
-  }, []);
-  return { theme, toggle };
-}
-
 export function Nav() {
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 30, restDelta: 0.001 });
   const [active, setActive] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const { theme, toggle } = useTheme();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -77,29 +56,33 @@ export function Nav() {
   return (
     <>
       <header
-        className={`sticky top-0 z-40 transition-colors duration-300 ${
-          scrolled ? "border-b border-line bg-bg/75 backdrop-blur-xl" : "border-b border-transparent"
-        }`}
-        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+        className="fixed inset-x-0 top-0 z-40 px-3 pt-3 sm:px-5 sm:pt-4"
+        style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)" }}
       >
-        <div className="wrap flex h-16 items-center gap-6">
-          <a href="#top" className="flex items-center gap-2.5 font-display text-lg font-semibold tracking-tight">
-            <Logo />
+        <div
+          className={`relative mx-auto flex h-14 max-w-[1120px] items-center gap-4 overflow-hidden rounded-full border pl-4 pr-2 backdrop-blur-xl transition-all duration-500 ${
+            scrolled
+              ? "border-white/10 bg-[rgba(8,10,20,0.72)] shadow-[0_20px_60px_-20px_rgba(0,0,0,0.9)]"
+              : "border-white/[0.06] bg-[rgba(8,10,20,0.35)]"
+          }`}
+        >
+          <a href="#top" className="flex items-center gap-2.5 font-display text-[1.05rem] font-semibold tracking-tight">
+            <Logo size={26} />
             InferMesh
           </a>
-          <nav aria-label="Sections" className="ml-6 hidden items-center gap-1 lg:flex">
+          <nav aria-label="Sections" className="mx-auto hidden items-center gap-0.5 lg:flex">
             {SECTIONS.map((s) => (
               <a
                 key={s.id}
                 href={`#${s.id}`}
-                className={`relative rounded-full px-3 py-1.5 text-sm transition-colors ${
+                className={`relative rounded-full px-3.5 py-1.5 text-[0.85rem] transition-colors ${
                   active === s.id ? "text-ink" : "text-muted hover:text-ink"
                 }`}
               >
                 {active === s.id && (
                   <motion.span
                     layoutId="nav-pill"
-                    className="absolute inset-0 -z-10 rounded-full bg-accent-soft ring-1 ring-accent/25"
+                    className="absolute inset-0 -z-10 rounded-full bg-white/[0.07] ring-1 ring-white/10"
                     transition={{ type: "spring", stiffness: 400, damping: 34 }}
                   />
                 )}
@@ -107,66 +90,39 @@ export function Nav() {
               </a>
             ))}
           </nav>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-2 lg:ml-0">
             <button
               type="button"
               onClick={() => setPaletteOpen(true)}
-              className="hidden items-center gap-2 rounded-lg border border-line bg-panel/60 px-3 py-1.5 text-sm text-muted transition hover:border-line-2 hover:text-ink sm:flex"
+              className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[0.8rem] text-muted transition hover:text-ink sm:flex"
             >
               <Icon name="search" className="h-3.5 w-3.5" />
-              Jump to
-              <kbd className="rounded border border-line-2 px-1.5 font-mono text-[0.68rem]">Ctrl K</kbd>
-            </button>
-            <button
-              type="button"
-              onClick={toggle}
-              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-              className="grid h-9 w-9 place-items-center rounded-lg border border-line bg-panel/60 text-muted transition hover:text-ink"
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.span
-                  key={theme}
-                  initial={{ rotate: -90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  exit={{ rotate: 90, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Icon name={theme === "dark" ? "sun" : "moon"} />
-                </motion.span>
-              </AnimatePresence>
+              <kbd className="font-mono text-[0.68rem]">Ctrl K</kbd>
             </button>
             <a
               href={REPO_URL}
               target="_blank"
               rel="noopener"
-              className="btn-primary shine flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-medium"
+              className="btn-primary shine flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium"
             >
               <Icon name="github" />
               <span className="hidden sm:inline">GitHub</span>
             </a>
           </div>
+          <motion.div
+            className="absolute inset-x-6 bottom-0 h-px origin-left bg-gradient-to-r from-accent via-signal to-accent"
+            style={{ scaleX: progress }}
+          />
         </div>
-        <motion.div
-          className="absolute inset-x-0 bottom-0 h-px origin-left bg-gradient-to-r from-accent via-signal to-accent"
-          style={{ scaleX: progress }}
-        />
       </header>
-      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} onToggleTheme={toggle} />
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </>
   );
 }
 
 type Cmd = { id: string; label: string; hint: string; run: () => void };
 
-function CommandPalette({
-  open,
-  onClose,
-  onToggleTheme,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onToggleTheme: () => void;
-}) {
+function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [q, setQ] = useState("");
   const [idx, setIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -191,10 +147,9 @@ function CommandPalette({
         hint: "Action",
         run: () => void navigator.clipboard?.writeText(QUICKSTART.join("\n")).catch(() => {}),
       },
-      { id: "theme", label: "Toggle light / dark theme", hint: "Action", run: onToggleTheme },
       { id: "gh", label: "Open the GitHub repository", hint: "Link", run: () => window.open(REPO_URL, "_blank", "noopener") },
     ],
-    [onToggleTheme],
+    [],
   );
 
   const filtered = commands.filter((c) => c.label.toLowerCase().includes(q.trim().toLowerCase()));
@@ -227,7 +182,7 @@ function CommandPalette({
             role="dialog"
             aria-modal="true"
             aria-label="Command palette"
-            className="mx-auto w-full max-w-lg overflow-hidden rounded-2xl border border-line-2 bg-panel shadow-2xl shadow-black/40"
+            className="mx-auto w-full max-w-lg overflow-hidden rounded-2xl border border-white/12 bg-[rgba(10,12,24,0.92)] shadow-2xl shadow-black/60 backdrop-blur-xl"
             initial={{ y: -12, scale: 0.97, opacity: 0 }}
             animate={{ y: 0, scale: 1, opacity: 1 }}
             exit={{ y: -8, scale: 0.98, opacity: 0 }}

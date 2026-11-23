@@ -1,9 +1,10 @@
 # InferMesh website
 
 The showcase / landing page for InferMesh. Next.js 16 (App Router, static
-export), React 19, Tailwind v4 and Motion. No backend: every interactive piece
-(request trace, alias explorer, failover simulator, cost calculator) runs in the
-browser from the data in `lib/data.ts`.
+export), React 19, Tailwind v4, Motion and [cobe](https://github.com/shuding/cobe)
+(WebGL globe). One deliberate dark "deep space" theme. No backend: every
+interactive piece (globe, request trace, alias explorer, failover simulator,
+cost calculator) runs in the browser from the data in `lib/data.ts`.
 
 ```bash
 cd website
@@ -17,16 +18,20 @@ npm run build      # static site in out/
 
 | Path | What |
 |------|------|
-| `app/layout.tsx` | fonts (Bricolage Grotesque, Geist, Geist Mono), metadata, pre-paint theme script |
-| `app/globals.css` | design tokens (dark default, `data-theme="light"`), Tailwind theme mapping |
+| `app/layout.tsx` | fonts (Sora, Geist, Geist Mono), metadata, the page-wide `Starfield` |
+| `app/globals.css` | design tokens (glass panels on deep space), Tailwind theme mapping, globe-label anchoring |
+| `components/Starfield.tsx` | fixed canvas behind the page: parallax stars, twinkle, occasional meteor |
+| `components/Globe.tsx` | cobe globe: gateway in Mumbai, arcs to provider regions, drag to rotate; labels anchored to markers, faded near the rim and collision-checked every frame |
+| `components/TraceSection.tsx` | the animated request trace (`TraceTerminal`) with its explanation |
 | `lib/data.ts` | every fact on the page: models, prices, aliases, pipeline, tour, stats, phases |
-| `components/Hero.tsx` | headline, `MeshCanvas` background, `TraceTerminal`, model marquee |
+| `components/Hero.tsx` | headline, CTAs, provider status, globe, model marquee |
+| `components/Glyphs.tsx` / `Illustrations.tsx` | duotone icon set and the animated SVG scenes in the feature bento |
 | `components/AliasExplorer.tsx` | `smart` / `balanced` / `fast` → per-provider models, click to fail a provider |
 | `components/Pipeline.tsx` | the five request stages with a travelling packet |
 | `components/FailoverSim.tsx` | SVG routing diagram + circuit-breaker simulation (threshold 5) |
 | `components/DashboardTour.tsx` | screenshots in a 3D-tilt browser frame, auto-advancing tabs |
 | `components/CostCalculator.tsx` | monthly cost with / without cache, USD / INR |
-| `components/Nav.tsx` | sticky nav, scroll progress, active section, theme toggle, Ctrl/⌘K palette |
+| `components/Nav.tsx` | floating glass nav, scroll progress, active section, Ctrl/⌘K palette |
 
 ## Keeping it accurate
 

@@ -147,6 +147,7 @@ export function FailoverSim() {
                       key={p.id}
                       d={`M${HUB.x} ${HUB.y} C ${HUB.x + 110} ${HUB.y}, ${PX - 120} ${PY[i]}, ${PX - 26} ${PY[i]}`}
                       fill="none"
+                      initial={false}
                       animate={{ stroke: color, opacity: p.circuit === "open" ? 0.45 : 1 }}
                       strokeWidth={1.5}
                       strokeDasharray={p.circuit === "open" ? "3 6" : undefined}
@@ -272,7 +273,7 @@ export function FailoverSim() {
             </ul>
 
             <div className="h-[214px] overflow-hidden rounded-xl border border-white/10 bg-term px-4 py-3 font-mono text-[0.72rem] text-term-ink" aria-live="off">
-              <AnimatePresence initial={false}>
+              <AnimatePresence>
                 {log.map((row) => (
                   <motion.div
                     key={row.id}

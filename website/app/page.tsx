@@ -7,6 +7,7 @@ import { FailoverSim } from "@/components/FailoverSim";
 import { Hero } from "@/components/Hero";
 import { Nav } from "@/components/Nav";
 import { Pipeline } from "@/components/Pipeline";
+import { TraceSection } from "@/components/TraceSection";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
+        <TraceSection />
         <DropIn />
         <AliasExplorer />
         <Pipeline />

@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "cobe": "2.0.1",
     "motion": "12.43.0",
     "next": "16.4.5",
     "react": "19.2.8",

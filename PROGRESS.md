@@ -1107,3 +1107,14 @@ tsc+oxlint+vitest+Playwright) and committed one change at a time.
   All facts in `website/lib/data.ts`. Verified: `tsc --noEmit` + `next build`
   clean; Playwright screenshots at 1440 px (dark + light) and 390 px: no page
   errors, no horizontal overflow.
+- **`style(website)` full redesign: deep-space theme + 3D globe** (2026-11-23)
+  — single dark theme (light toggle removed), page-wide `Starfield` canvas
+  (parallax, twinkle, meteors), glass panels, Sora display type, floating
+  glass nav. Hero: cobe v2 WebGL globe (gateway in Mumbai, arcs from client
+  cities and out to provider regions, drag to rotate). Labels use CSS anchor
+  positioning on cobe's marker anchors, fade near the rim, and are
+  collision-checked every frame (try above, then below, else hide). Verified
+  with Playwright by dragging through a full rotation: every label shown at
+  some point, 0 overlaps, 0 labels outside the globe. Request trace moved to
+  its own section. No console errors/warnings, no horizontal overflow at
+  1440 / 1024 / 390 px; `tsc` + `next build` clean.
