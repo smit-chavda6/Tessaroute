@@ -10,6 +10,8 @@ The build is complete (12 phases — see [`PROGRESS.md`](./PROGRESS.md)). Spec a
 phase definitions live in [`docs/SPEC.md`](./docs/SPEC.md); a new session starts
 from [`CLAUDE.md`](./CLAUDE.md).
 
+**Website:** [infermesh-delta.vercel.app](https://infermesh-delta.vercel.app) (showcase site, source in [`website/`](./website))
+
 ![Dashboard overview](docs/screenshots/overview.png)
 
 ## What's in it

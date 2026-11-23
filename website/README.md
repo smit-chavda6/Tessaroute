@@ -41,5 +41,10 @@ here too. Screenshots in `public/screenshots/` are copies of `docs/screenshots/`
 
 ## Deploy
 
+Live at **https://infermesh-delta.vercel.app**. The Vercel project `infermesh`
+(team `smit-chavda-projects`) is linked to this repo with Root Directory
+`website`, so every push to `master` deploys to production.
+
+
 Vercel: import the repo and set **Root Directory** to `website`. Any static
 host also works: upload `out/` after `npm run build`.
