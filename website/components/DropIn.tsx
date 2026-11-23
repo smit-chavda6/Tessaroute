@@ -2,7 +2,7 @@
 
 import { motion } from "motion/react";
 import { useState, type ReactNode } from "react";
-import { CostSpark, FallbackPath, LatencyBars, StreamTokens, TierStack } from "./Illustrations";
+import { CostChart, FallbackRoute, LatencyGauge, StreamChat, TierMatrix } from "./Illustrations";
 import { Glyph } from "./Glyphs";
 import { CopyButton, Reveal, SectionHead, SpotlightCard } from "./ui";
 
@@ -109,35 +109,35 @@ const BENTO = [
     glyph: "tiers" as const,
     title: "Ask for a tier, not a model",
     text: "smart, balanced and fast resolve per provider from one YAML file. A model release is a config change.",
-    art: <TierStack />,
+    art: <TierMatrix />,
     span: "lg:col-span-3",
   },
   {
     glyph: "route" as const,
     title: "Fallback that keeps the quality",
     text: "When a provider fails, the next hop runs the same-tier model, and every attempt is listed in the response.",
-    art: <FallbackPath />,
+    art: <FallbackRoute />,
     span: "lg:col-span-3",
   },
   {
     glyph: "pulse" as const,
     title: "Cost on every call",
     text: "Priced against the model that actually served it, from a versioned table.",
-    art: <CostSpark />,
+    art: <CostChart />,
     span: "lg:col-span-2",
   },
   {
     glyph: "bolt" as const,
     title: "Streaming passes through",
     text: "Server-sent events end to end. Usage is still recorded when the stream closes.",
-    art: <StreamTokens />,
+    art: <StreamChat />,
     span: "lg:col-span-2",
   },
   {
     glyph: "mesh" as const,
-    title: "Metrics you can scrape",
-    text: "Prometheus /metrics with latency histograms, tokens, retries and breaker state.",
-    art: <LatencyBars />,
+    title: "Latency you can scrape",
+    text: "Prometheus /metrics exposes latency histograms, tokens, retries and breaker state.",
+    art: <LatencyGauge />,
     span: "lg:col-span-2",
   },
 ];

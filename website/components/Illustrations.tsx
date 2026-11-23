@@ -1,294 +1,449 @@
 "use client";
 
 import { useReducedMotion } from "motion/react";
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 
 /*
-  Small animated SVG scenes for the feature bento. Everything is drawn from the
-  theme tokens so the scenes work in dark and light. SMIL animation is omitted
-  entirely for reduced-motion users (CSS media queries can't stop SMIL).
+  Animated SVG scenes for the Drop-in feature bento. Shared language:
+  dot-grid backdrop, accent→signal gradients, soft glow filters, small glass
+  tags in Geist Mono. SMIL animation loops are omitted for reduced-motion
+  users (CSS media queries can't stop SMIL).
 */
 
 const mono = { fontFamily: "var(--font-mono)" } as const;
+const sans = { fontFamily: "var(--font-sans)" } as const;
+const ACC = "#8f97ff";
+const SIG = "#5eead4";
+const ERR = "#f87171";
 
-function useIds(...names: string[]) {
+function useIds<T extends string>(...names: T[]) {
   const id = useId().replace(/:/g, "");
-  return Object.fromEntries(names.map((n) => [n, `${n}${id}`])) as Record<string, string>;
+  return Object.fromEntries(names.map((n) => [n, `${n}${id}`])) as Record<T, string>;
 }
 
-function Grad({ id, a = "var(--accent)", b = "var(--signal)", o1 = 1, o2 = 1, vertical = false }: { id: string; a?: string; b?: string; o1?: number; o2?: number; vertical?: boolean }) {
+/** Shared <defs>: dot grid, brand gradient, glow filter. */
+function Defs({ ids }: { ids: { dots: string; brand: string; glow: string } }) {
   return (
-    <linearGradient id={id} x1="0" y1="0" x2={vertical ? "0" : "1"} y2={vertical ? "1" : "0"}>
-      <stop offset="0" stopColor={a} stopOpacity={o1} />
-      <stop offset="1" stopColor={b} stopOpacity={o2} />
-    </linearGradient>
+    <>
+      <pattern id={ids.dots} width="12" height="12" patternUnits="userSpaceOnUse">
+        <circle cx="1" cy="1" r="0.7" fill="#ffffff" fillOpacity="0.07" />
+      </pattern>
+      <linearGradient id={ids.brand} x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stopColor={ACC} />
+        <stop offset="1" stopColor={SIG} />
+      </linearGradient>
+      <filter id={ids.glow} x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="3" result="b" />
+        <feMerge>
+          <feMergeNode in="b" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </>
   );
 }
 
-/** Three isometric slabs: smart / balanced / fast, with balanced lit. */
-export function TierStack() {
-  const reduce = useReducedMotion();
-  const ids = useIds("lit", "litSide", "glow");
-  const slabs = [
-    { y: 46, label: "smart", model: "claude-opus-5-5", lit: false, phase: "0s" },
-    { y: 86, label: "balanced", model: "gpt-6.1-terra", lit: true, phase: "0.4s" },
-    { y: 126, label: "fast", model: "gemini-3.5-flash-lite", lit: false, phase: "0.8s" },
-  ];
+function Tag({ x, y, children, tone = "#a4aac3", w }: { x: number; y: number; children: ReactNode; tone?: string; w: number }) {
   return (
-    <svg viewBox="0 0 340 176" className="h-auto w-full" aria-hidden="true">
+    <g>
+      <rect x={x} y={y} width={w} height="16" rx="8" fill="#0b0d18" stroke="#ffffff" strokeOpacity="0.1" />
+      <text x={x + w / 2} y={y + 11} textAnchor="middle" fontSize="7.5" fill={tone} style={mono}>
+        {children}
+      </text>
+    </g>
+  );
+}
+
+/* ------------------------------------------------------------------------- */
+/* 1. Tier matrix                                                              */
+/* ------------------------------------------------------------------------- */
+
+const TIERS = [
+  { alias: "smart", models: ["gpt-6.2-sol", "claude-opus-5-5", "gemini-4-argon"] },
+  { alias: "balanced", models: ["gpt-6.1-terra", "claude-sonnet-5-5", "gemini-3.8-flash"] },
+  { alias: "fast", models: ["gpt-6-luna", "claude-haiku-5-5", "gemini-3.5-flash-lite"] },
+];
+
+export function TierMatrix() {
+  const reduce = useReducedMotion();
+  const ids = useIds("dots", "brand", "glow", "beam", "row", "clip");
+  const X0 = 92;
+  const COL = 108;
+  const ROW_Y = [74, 112, 150];
+  return (
+    <svg viewBox="0 0 420 200" className="h-auto w-full" aria-hidden="true">
       <defs>
-        <Grad id={ids.lit!} o1={0.95} o2={0.85} />
-        <Grad id={ids.litSide!} o1={0.55} o2={0.4} vertical />
-        <radialGradient id={ids.glow!}>
-          <stop offset="0" stopColor="var(--accent)" stopOpacity="0.45" />
-          <stop offset="1" stopColor="var(--accent)" stopOpacity="0" />
-        </radialGradient>
+        <Defs ids={ids} />
+        <linearGradient id={ids.beam} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor={SIG} stopOpacity="0" />
+          <stop offset="0.5" stopColor={SIG} stopOpacity="0.35" />
+          <stop offset="1" stopColor={SIG} stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id={ids.row} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor={ACC} stopOpacity="0.22" />
+          <stop offset="1" stopColor={SIG} stopOpacity="0.12" />
+        </linearGradient>
+        <clipPath id={ids.clip}>
+          <rect x="14" y={ROW_Y[1]! - 15} width="392" height="30" rx="10" />
+        </clipPath>
       </defs>
-      <ellipse cx="104" cy="90" rx="96" ry="42" fill={`url(#${ids.glow})`} />
-      {slabs
-        .slice()
-        .reverse()
-        .map((s) => (
-          <g key={s.label}>
-            {!reduce && (
-              <animateTransform
-                attributeName="transform"
-                type="translate"
-                values="0 0; 0 -4; 0 0"
-                dur="3.6s"
-                begin={s.phase}
-                repeatCount="indefinite"
-                calcMode="spline"
-                keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
-              />
-            )}
-            {/* side faces */}
-            <path
-              d={`M24 ${s.y} L104 ${s.y + 24} L104 ${s.y + 34} L24 ${s.y + 10} Z`}
-              fill={s.lit ? `url(#${ids.litSide})` : "var(--panel-2)"}
-              stroke="var(--line-2)"
-              strokeWidth="1"
-            />
-            <path
-              d={`M104 ${s.y + 24} L184 ${s.y} L184 ${s.y + 10} L104 ${s.y + 34} Z`}
-              fill={s.lit ? `url(#${ids.litSide})` : "var(--bg-2)"}
-              stroke="var(--line-2)"
-              strokeWidth="1"
-            />
-            {/* top face */}
-            <path
-              d={`M104 ${s.y - 24} L184 ${s.y} L104 ${s.y + 24} L24 ${s.y} Z`}
-              fill={s.lit ? `url(#${ids.lit})` : "var(--panel)"}
-              stroke={s.lit ? "var(--signal)" : "var(--line-2)"}
-              strokeWidth="1"
-            />
-            {!s.lit && (
-              <path d={`M64 ${s.y - 12} L144 ${s.y + 12}`} stroke="var(--line-2)" strokeWidth="1" strokeDasharray="2 5" />
-            )}
-            {/* leader + label */}
-            <path d={`M184 ${s.y} H206`} stroke={s.lit ? "var(--signal)" : "var(--line-2)"} strokeWidth="1" />
-            <circle cx="206" cy={s.y} r="2.5" fill={s.lit ? "var(--signal)" : "var(--line-2)"} />
-            <text x="214" y={s.y - 2} fontSize="11.5" fontWeight="600" fill={s.lit ? "var(--ink)" : "var(--muted)"} style={mono}>
-              {`"${s.label}"`}
+      <rect width="420" height="200" fill={`url(#${ids.dots})`} />
+
+      {/* request chip */}
+      <g>
+        <rect x="14" y="10" width="118" height="22" rx="11" fill="#0b0d18" stroke={ACC} strokeOpacity="0.5" />
+        <circle cx="27" cy="21" r="3" fill={ACC} filter={`url(#${ids.glow})`} />
+        <text x="36" y="24.5" fontSize="8.5" fill="#eef0fb" style={mono}>
+          model: &quot;balanced&quot;
+        </text>
+      </g>
+      <path d={`M14 21 H11 Q7 21 7 25 V${ROW_Y[1]! - 4} Q7 ${ROW_Y[1]} 11 ${ROW_Y[1]} H14`} fill="none" stroke={`url(#${ids.brand})`} strokeWidth="1.2" strokeDasharray="3 4" className={reduce ? undefined : "flow"} />
+
+      {/* column headers */}
+      {["OpenAI", "Anthropic", "Gemini"].map((h, i) => (
+        <text key={h} x={X0 + i * COL + COL / 2 - 4} y="56" textAnchor="middle" fontSize="8.5" fontWeight="600" fill="#a4aac3" style={sans}>
+          {h}
+        </text>
+      ))}
+
+      {/* highlighted row backplate */}
+      <rect x="14" y={ROW_Y[1]! - 15} width="392" height="30" rx="10" fill={`url(#${ids.row})`} stroke={SIG} strokeOpacity="0.45" />
+      {!reduce && (
+        <g clipPath={`url(#${ids.clip})`}>
+          <rect x="-80" y={ROW_Y[1]! - 15} width="80" height="30" fill={`url(#${ids.beam})`}>
+            <animate attributeName="x" values="-80;420" dur="2.8s" repeatCount="indefinite" />
+          </rect>
+        </g>
+      )}
+
+      {TIERS.map((t, r) => {
+        const y = ROW_Y[r]!;
+        const lit = t.alias === "balanced";
+        return (
+          <g key={t.alias}>
+            <text x="22" y={y + 3} fontSize="9" fontWeight={lit ? 700 : 500} fill={lit ? "#ffffff" : "#727a96"} style={mono}>
+              &quot;{t.alias}&quot;
             </text>
-            <text x="214" y={s.y + 12} fontSize="9.5" fill={s.lit ? "var(--signal)" : "var(--faint)"} style={mono}>
-              {s.model}
-            </text>
+            {t.models.map((m, c) => {
+              const cx = X0 + c * COL;
+              return (
+                <g key={m}>
+                  <rect
+                    x={cx}
+                    y={y - 10}
+                    width={COL - 8}
+                    height="20"
+                    rx="6"
+                    fill={lit ? "#0b0d18" : "#ffffff"}
+                    fillOpacity={lit ? 0.9 : 0.025}
+                    stroke={lit ? (c === 0 ? SIG : ACC) : "#ffffff"}
+                    strokeOpacity={lit ? (c === 0 ? 0.9 : 0.35) : 0.07}
+                  />
+                  {lit && c === 0 && <circle cx={cx + 9} cy={y} r="2.6" fill={SIG} filter={`url(#${ids.glow})`} />}
+                  <text x={lit && c === 0 ? cx + 16 : cx + (COL - 8) / 2} y={y + 3} textAnchor={lit && c === 0 ? "start" : "middle"} fontSize="7.6" fill={lit ? (c === 0 ? SIG : "#d9dcef") : "#6b7288"} style={mono}>
+                    {m}
+                  </text>
+                </g>
+              );
+            })}
           </g>
-        ))}
+        );
+      })}
+      <text x="406" y="190" textAnchor="end" fontSize="7.5" fill="#727a96" style={mono}>
+        backend/models.yaml
+      </text>
     </svg>
   );
 }
 
-/** Request → hub → failed provider (✕) → same-tier provider (✓), with a packet. */
-export function FallbackPath() {
+/* ------------------------------------------------------------------------- */
+/* 2. Same-tier fallback route                                                 */
+/* ------------------------------------------------------------------------- */
+
+export function FallbackRoute() {
   const reduce = useReducedMotion();
-  const ids = useIds("ok", "path");
-  const okPath = "M30 92 H112 C150 92 160 134 206 134";
+  const ids = useIds("dots", "brand", "glow", "orb", "fail");
+  const IN = "M44 104 H140";
+  const UP = "M172 104 C220 104 230 54 286 54";
+  const DOWN = "M172 104 C220 104 230 154 286 154";
   return (
-    <svg viewBox="0 0 340 176" className="h-auto w-full" aria-hidden="true">
+    <svg viewBox="0 0 420 200" className="h-auto w-full" aria-hidden="true">
       <defs>
-        <Grad id={ids.ok!} />
+        <Defs ids={ids} />
+        <radialGradient id={ids.orb}>
+          <stop offset="0" stopColor="#c7cbff" />
+          <stop offset="0.55" stopColor={ACC} stopOpacity="0.55" />
+          <stop offset="1" stopColor={ACC} stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id={ids.fail}>
+          <stop offset="0" stopColor={ERR} stopOpacity="0.5" />
+          <stop offset="1" stopColor={ERR} stopOpacity="0" />
+        </radialGradient>
+        <path id={`${ids.brand}-ok`} d="M44 104 H172 C220 104 230 154 286 154" />
+        <path id={`${ids.brand}-up`} d="M156 104 H172 C220 104 230 54 286 54" />
       </defs>
-      <path d="M30 92 H112" stroke="var(--line-2)" strokeWidth="1.5" />
-      <path d="M112 92 C150 92 160 46 206 46" fill="none" stroke="var(--err)" strokeOpacity="0.55" strokeWidth="1.5" strokeDasharray="3 5" />
-      <path d="M112 92 C150 92 160 134 206 134" fill="none" stroke={`url(#${ids.ok})`} strokeWidth="2" className={reduce ? undefined : "flow"} />
+      <rect width="420" height="200" fill={`url(#${ids.dots})`} />
+
+      {/* links */}
+      <path d={IN} stroke="#ffffff" strokeOpacity="0.14" strokeWidth="1.4" />
+      <path d={UP} fill="none" stroke={ERR} strokeOpacity="0.45" strokeWidth="1.4" strokeDasharray="3 5" />
+      <path d={DOWN} fill="none" stroke={`url(#${ids.brand})`} strokeWidth="2" filter={`url(#${ids.glow})`} />
 
       {/* client */}
-      <rect x="6" y="80" width="40" height="24" rx="7" fill="var(--panel-2)" stroke="var(--line-2)" />
-      <text x="26" y="95.5" fontSize="8.5" textAnchor="middle" fill="var(--muted)" style={mono}>
-        req
-      </text>
-      {/* hub */}
-      <circle cx="112" cy="92" r="17" fill="var(--accent-soft)" stroke="var(--accent)" strokeWidth="1.5" />
-      <path d="M112 93V85M112 93l-6 5M112 93l6 5" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" />
-      <circle cx="112" cy="93" r="2.4" fill="var(--accent)" />
+      <g>
+        <circle cx="30" cy="104" r="14" fill="#0b0d18" stroke="#ffffff" strokeOpacity="0.15" />
+        <text x="30" y="107" textAnchor="middle" fontSize="7.5" fill="#a4aac3" style={mono}>app</text>
+      </g>
+
+      {/* router orb */}
+      <g>
+        <circle cx="156" cy="104" r="30" fill={`url(#${ids.orb})`} opacity="0.55" />
+        <circle cx="156" cy="104" r="17" fill="#0b0d18" stroke={ACC} strokeWidth="1.4" />
+        <circle cx="156" cy="104" r="23" fill="none" stroke={ACC} strokeOpacity="0.4" strokeDasharray="2 5">
+          {!reduce && <animateTransform attributeName="transform" type="rotate" from="0 156 104" to="360 156 104" dur="14s" repeatCount="indefinite" />}
+        </circle>
+        <path d="M156 105 V97 M156 105 l-6 5 M156 105 l6 5" stroke="#c7cbff" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="156" cy="105" r="2.4" fill="#ffffff" />
+      </g>
 
       {/* failed provider */}
       <g>
-        <rect x="206" y="30" width="122" height="32" rx="9" fill="var(--panel-2)" stroke="var(--err)" strokeOpacity="0.6" />
-        <circle cx="222" cy="46" r="7" fill="var(--err)" fillOpacity="0.15" />
-        <path d="m219 43 6 6m0-6-6 6" stroke="var(--err)" strokeWidth="1.6" strokeLinecap="round" />
-        <text x="236" y="43" fontSize="9" fill="var(--ink)" style={mono}>anthropic</text>
-        <text x="236" y="55" fontSize="8" fill="var(--err)" style={mono}>timeout ×2</text>
+        <circle cx="300" cy="54" r="26" fill={`url(#${ids.fail})`}>
+          {!reduce && <animate attributeName="r" values="14;30;14" dur="1.8s" repeatCount="indefinite" />}
+        </circle>
+        <circle cx="300" cy="54" r="13" fill="#140b10" stroke={ERR} strokeOpacity="0.8" />
+        <path d="m295.5 49.5 9 9m0-9-9 9" stroke={ERR} strokeWidth="1.7" strokeLinecap="round" />
+        <text x="320" y="51" fontSize="9" fontWeight="600" fill="#eef0fb" style={sans}>Anthropic</text>
+        <text x="320" y="63" fontSize="7.5" fill={ERR} style={mono}>claude-opus-5-5</text>
       </g>
+      <Tag x={200} y={22} w={84} tone={ERR}>timeout ×2</Tag>
+
       {/* serving provider */}
       <g>
-        <rect x="206" y="118" width="122" height="32" rx="9" fill="var(--panel-2)" stroke="var(--signal)" />
-        <circle cx="222" cy="134" r="7" fill="var(--signal)" fillOpacity="0.18" />
-        <path d="m218.5 134 2.5 2.6 4.6-5" stroke="var(--signal)" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-        <text x="236" y="131" fontSize="9" fill="var(--ink)" style={mono}>openai</text>
-        <text x="236" y="143" fontSize="8" fill="var(--signal)" style={mono}>gpt-6.2-sol</text>
+        <circle cx="300" cy="154" r="13" fill="#08161a" stroke={SIG} strokeWidth="1.4" filter={`url(#${ids.glow})`} />
+        <path d="m294.5 154 3.6 3.6 6.4-7" stroke={SIG} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        {!reduce && (
+          <circle cx="300" cy="154" r="13" fill="none" stroke={SIG}>
+            <animate attributeName="r" values="13;24" dur="2.4s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.7;0" dur="2.4s" repeatCount="indefinite" />
+          </circle>
+        )}
+        <text x="320" y="151" fontSize="9" fontWeight="600" fill="#eef0fb" style={sans}>OpenAI</text>
+        <text x="320" y="163" fontSize="7.5" fill={SIG} style={mono}>gpt-6.2-sol</text>
       </g>
-      <text x="122" y="132" fontSize="8" fill="var(--signal)" fillOpacity="0.8" style={mono}>same tier</text>
+      <Tag x={192} y={170} w={92} tone={SIG}>same tier · 918 ms</Tag>
 
+      {/* comet packet on the success path, red probe on the failed branch */}
       {!reduce && (
-        <circle r="4" fill="var(--signal)" style={{ filter: "drop-shadow(0 0 5px var(--signal))" }}>
-          <animateMotion dur="2.6s" repeatCount="indefinite" path={okPath} keyPoints="0;1" keyTimes="0;1" calcMode="linear" />
-          <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.85;1" dur="2.6s" repeatCount="indefinite" />
-        </circle>
+        <>
+          {[0, 0.04, 0.08, 0.12].map((lag, i) => (
+            <circle key={i} r={3.6 - i * 0.7} fill={SIG} opacity={1 - i * 0.22} filter={i === 0 ? `url(#${ids.glow})` : undefined}>
+              <animateMotion dur="2.4s" begin={`-${lag}s`} repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.7;1" calcMode="linear">
+                <mpath href={`#${ids.brand}-ok`} />
+              </animateMotion>
+            </circle>
+          ))}
+          <circle r="3" fill={ERR}>
+            <animateMotion dur="2.4s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.45;1" calcMode="linear">
+              <mpath href={`#${ids.brand}-up`} />
+            </animateMotion>
+            <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.05;0.42;0.47;1" dur="2.4s" repeatCount="indefinite" />
+          </circle>
+        </>
       )}
     </svg>
   );
 }
 
-/** Spend curve that draws itself, with a per-call price tag. */
-export function CostSpark() {
+/* ------------------------------------------------------------------------- */
+/* 3. Cost chart                                                               */
+/* ------------------------------------------------------------------------- */
+
+export function CostChart() {
   const reduce = useReducedMotion();
-  const ids = useIds("area", "line");
-  const pts = [8, 120, 46, 112, 84, 116, 122, 96, 160, 102, 198, 78, 236, 84, 274, 58, 312, 48];
-  let d = `M${pts[0]} ${pts[1]}`;
-  for (let i = 2; i < pts.length; i += 2) {
-    const [px, py, x, y] = [pts[i - 2]!, pts[i - 1]!, pts[i]!, pts[i + 1]!];
-    const cx = (px + x) / 2;
-    d += ` C${cx} ${py} ${cx} ${y} ${x} ${y}`;
+  const ids = useIds("dots", "brand", "glow", "area");
+  const xs = [28, 74, 120, 166, 212, 258, 304];
+  const ys = [118, 104, 110, 86, 92, 66, 52];
+  let d = `M${xs[0]} ${ys[0]}`;
+  for (let i = 1; i < xs.length; i++) {
+    const cx = (xs[i - 1]! + xs[i]!) / 2;
+    d += ` C${cx} ${ys[i - 1]} ${cx} ${ys[i]} ${xs[i]} ${ys[i]}`;
   }
-  const area = `${d} L312 150 L8 150 Z`;
   return (
-    <svg viewBox="0 0 320 160" className="h-auto w-full" aria-hidden="true">
+    <svg viewBox="0 0 320 170" className="h-auto w-full" aria-hidden="true">
       <defs>
+        <Defs ids={ids} />
         <linearGradient id={ids.area} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="var(--accent)" stopOpacity="0.38" />
-          <stop offset="1" stopColor="var(--accent)" stopOpacity="0" />
+          <stop offset="0" stopColor={ACC} stopOpacity="0.35" />
+          <stop offset="1" stopColor={ACC} stopOpacity="0" />
         </linearGradient>
-        <Grad id={ids.line!} />
       </defs>
-      {[60, 90, 120, 150].map((y) => (
-        <line key={y} x1="8" x2="312" y1={y} y2={y} stroke="var(--line)" strokeWidth="1" />
+      <rect width="320" height="170" fill={`url(#${ids.dots})`} />
+      {[52, 85, 118].map((y) => (
+        <line key={y} x1="20" x2="312" y1={y} y2={y} stroke="#ffffff" strokeOpacity="0.06" strokeDasharray="2 4" />
       ))}
-      <path d={area} fill={`url(#${ids.area})`} />
-      <path d={d} fill="none" stroke={`url(#${ids.line})`} strokeWidth="2.4" strokeLinecap="round" pathLength={1} strokeDasharray="1" strokeDashoffset="0">
-        {!reduce && <animate attributeName="stroke-dashoffset" values="1;0;0" keyTimes="0;0.55;1" dur="5s" repeatCount="indefinite" />}
+      <path d={`${d} L304 140 L28 140 Z`} fill={`url(#${ids.area})`} />
+      <path d={d} fill="none" stroke={`url(#${ids.brand})`} strokeWidth="2.2" strokeLinecap="round" filter={`url(#${ids.glow})`} pathLength={1} strokeDasharray="1" strokeDashoffset="0">
+        {!reduce && <animate attributeName="stroke-dashoffset" values="1;0;0" keyTimes="0;0.5;1" dur="6s" repeatCount="indefinite" />}
       </path>
-      <circle cx="312" cy="48" r="4" fill="var(--signal)" />
+      {xs.map((x, i) => (
+        <text key={x} x={x} y="156" textAnchor="middle" fontSize="7" fill="#6b7288" style={mono}>
+          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i]}
+        </text>
+      ))}
+      {/* endpoint + tooltip */}
+      <line x1="304" x2="304" y1="52" y2="140" stroke={SIG} strokeOpacity="0.35" strokeDasharray="2 3" />
+      <circle cx="304" cy="52" r="4" fill={SIG} filter={`url(#${ids.glow})`} />
       {!reduce && (
-        <circle cx="312" cy="48" r="4" fill="none" stroke="var(--signal)">
-          <animate attributeName="r" values="4;13" dur="1.8s" repeatCount="indefinite" />
+        <circle cx="304" cy="52" r="4" fill="none" stroke={SIG}>
+          <animate attributeName="r" values="4;12" dur="1.8s" repeatCount="indefinite" />
           <animate attributeName="opacity" values="0.8;0" dur="1.8s" repeatCount="indefinite" />
         </circle>
       )}
       <g>
-        <rect x="186" y="12" width="112" height="24" rx="12" fill="var(--panel-2)" stroke="var(--line-2)" />
-        <circle cx="200" cy="24" r="3" fill="var(--ok)" />
-        <text x="209" y="27.5" fontSize="10" fill="var(--ink)" style={mono}>$0.002120</text>
-        <text x="266" y="27.5" fontSize="8" fill="var(--faint)" style={mono}>/call</text>
+        <rect x="186" y="10" width="106" height="34" rx="9" fill="#0b0d18" stroke="#ffffff" strokeOpacity="0.12" />
+        <text x="196" y="24" fontSize="8.5" fontWeight="600" fill="#eef0fb" style={mono}>$0.002120</text>
+        <text x="250" y="24" fontSize="7" fill="#727a96" style={mono}>/ call</text>
+        <circle cx="198" cy="34" r="2.4" fill="#4ade80" />
+        <text x="204" y="36.5" fontSize="7" fill="#4ade80" style={mono}>cache hits: $0</text>
       </g>
     </svg>
   );
 }
 
-/** Tokens arriving as SSE chunks. */
-export function StreamTokens() {
+/* ------------------------------------------------------------------------- */
+/* 4. Streaming tokens into a chat bubble                                      */
+/* ------------------------------------------------------------------------- */
+
+const STREAM_LINES = [
+  ["Routed", "to", "openai", "on", "the"],
+  ["balanced", "tier.", "Streaming", "via", "SSE"],
+  ["with", "usage", "recorded", "at", "close."],
+];
+
+export function StreamChat() {
   const reduce = useReducedMotion();
-  const ids = useIds("tok");
-  const rows = [
-    [38, 54, 30, 62],
-    [46, 28, 70, 40],
-    [58, 36, 24],
-  ];
-  let n = 0;
-  const total = rows.flat().length;
+  const ids = useIds("dots", "brand", "glow");
+  const words = STREAM_LINES.flat();
+  const total = words.length;
+  const CHAR = 5.15; // 8.5px Geist Mono advance
+  let k = 0;
   return (
-    <svg viewBox="0 0 320 160" className="h-auto w-full" aria-hidden="true">
+    <svg viewBox="0 0 320 170" className="h-auto w-full" aria-hidden="true">
       <defs>
-        <Grad id={ids.tok!} o1={0.9} o2={0.7} />
+        <Defs ids={ids} />
       </defs>
-      <text x="12" y="24" fontSize="10" fill="var(--faint)" style={mono}>
-        data: {"{"}&quot;delta&quot;: …{"}"}
+      <rect width="320" height="170" fill={`url(#${ids.dots})`} />
+
+      {/* SSE frame rail */}
+      {[0, 1, 2, 3].map((i) => (
+        <g key={i}>
+          <rect x="14" y={26 + i * 26} width="70" height="16" rx="5" fill="#0b0d18" stroke={ACC} strokeOpacity={0.15 + i * 0.1} />
+          <text x="21" y={37 + i * 26} fontSize="6.8" fill="#8f97ff" style={mono}>
+            data: {"{"}δ{"}"}
+          </text>
+        </g>
+      ))}
+      <text x="14" y="140" fontSize="6.8" fill="#727a96" style={mono}>
+        data: [DONE]
       </text>
-      {rows.map((row, r) => {
-        let x = 12;
-        return row.map((w, i) => {
-          const k = n++;
+      <path d="M88 76 H104" stroke={`url(#${ids.brand})`} strokeWidth="1.2" className={reduce ? undefined : "flow"} />
+
+      {/* bubble */}
+      <rect x="108" y="22" width="198" height="104" rx="14" fill="#0b0d18" stroke="#ffffff" strokeOpacity="0.1" />
+      <circle cx="124" cy="38" r="5" fill={`url(#${ids.brand})`} />
+      <text x="134" y="41" fontSize="7.5" fill="#a4aac3" style={sans}>
+        assistant
+      </text>
+      {STREAM_LINES.map((line, r) => {
+        let x = 119;
+        return line.map((w) => {
+          const i = k++;
+          const start = (i / total) * 0.62;
           const el = (
-            <rect key={`${r}-${i}`} x={x} y={44 + r * 32} width={w} height="18" rx="9" fill={`url(#${ids.tok})`} opacity={reduce ? 1 : 0}>
+            <text key={`${r}-${w}-${i}`} x={x} y={64 + r * 17} fontSize="8.5" fill="#d9dcef" style={mono} opacity={reduce ? 1 : 0}>
+              {w}
               {!reduce && (
-                <animate
-                  attributeName="opacity"
-                  values="0;0;1;1;0"
-                  keyTimes={`0;${(k / total) * 0.6};${(k / total) * 0.6 + 0.04};0.92;1`}
-                  dur="4.5s"
-                  repeatCount="indefinite"
-                />
+                <animate attributeName="opacity" values="0;0;1;1;0" keyTimes={`0;${start.toFixed(3)};${(start + 0.03).toFixed(3)};0.93;1`} dur="5s" repeatCount="indefinite" />
               )}
-            </rect>
+            </text>
           );
-          x += w + 8;
+          x += (w.length + 1) * CHAR;
           return el;
         });
       })}
-      <rect x="148" y="108" width="2" height="18" fill="var(--signal)">
-        {!reduce && <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite" />}
-      </rect>
-      <text x="12" y="150" fontSize="9" fill="var(--faint)" style={mono}>
-        data: [DONE]
+      <rect x="120" y="106" width="34" height="10" rx="5" fill={SIG} fillOpacity="0.15" />
+      <text x="137" y="113.5" textAnchor="middle" fontSize="6.5" fill={SIG} style={mono}>
+        live
+      </text>
+      <text x="306" y="150" textAnchor="end" fontSize="7" fill="#727a96" style={mono}>
+        text/event-stream
       </text>
     </svg>
   );
 }
 
-/** Latency histogram with a p95 marker, as scraped from /metrics. */
-export function LatencyBars() {
+/* ------------------------------------------------------------------------- */
+/* 5. Latency gauge                                                            */
+/* ------------------------------------------------------------------------- */
+
+export function LatencyGauge() {
   const reduce = useReducedMotion();
-  const ids = useIds("bar");
-  const hs = [22, 48, 86, 104, 92, 70, 50, 34, 22, 14, 9, 6];
+  const ids = useIds("dots", "brand", "glow", "arc");
+  const cx = 160;
+  const cy = 118;
+  const R = 78;
+  // 0 s .. 3 s mapped onto a 180° arc; p95 = 1.4 s
+  const angle = (s: number) => Math.PI - (s / 3) * Math.PI;
+  // rounded so server and browser render identical attributes (no hydration mismatch)
+  const round = (v: number) => Math.round(v * 100) / 100;
+  const pt = (s: number, r = R) => [round(cx + r * Math.cos(angle(s))), round(cy - r * Math.sin(angle(s)))] as const;
+  const needleDeg = -90 + (1.4 / 3) * 180;
   return (
-    <svg viewBox="0 0 320 160" className="h-auto w-full" aria-hidden="true">
+    <svg viewBox="0 0 320 170" className="h-auto w-full" aria-hidden="true">
       <defs>
-        <Grad id={ids.bar!} a="var(--accent)" b="var(--signal)" vertical o1={0.95} o2={0.35} />
+        <Defs ids={ids} />
+        <linearGradient id={ids.arc} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor={SIG} />
+          <stop offset="0.55" stopColor={ACC} />
+          <stop offset="1" stopColor={ERR} />
+        </linearGradient>
       </defs>
-      <line x1="10" x2="310" y1="136" y2="136" stroke="var(--line-2)" />
-      {hs.map((h, i) => {
-        const x = 14 + i * 24.5;
+      <rect width="320" height="170" fill={`url(#${ids.dots})`} />
+      {/* track + value arc */}
+      <path d={`M${cx - R} ${cy} A${R} ${R} 0 0 1 ${cx + R} ${cy}`} fill="none" stroke="#ffffff" strokeOpacity="0.07" strokeWidth="10" strokeLinecap="round" />
+      <path d={`M${cx - R} ${cy} A${R} ${R} 0 0 1 ${cx + R} ${cy}`} fill="none" stroke={`url(#${ids.arc})`} strokeWidth="10" strokeLinecap="round" opacity="0.9" />
+      {/* ticks */}
+      {[0, 0.5, 1, 1.5, 2, 2.5, 3].map((s) => {
+        const [x1, y1] = pt(s, R - 12);
+        const [x2, y2] = pt(s, R - 18);
+        const [tx, ty] = pt(s, R + 14);
         return (
-          <rect key={i} x={x} y={136 - h} width="17" height={h} rx="4" fill={`url(#${ids.bar})`} opacity={i > 8 ? 0.55 : 1}>
-            {!reduce && (
-              <animate
-                attributeName="height"
-                values={`${h};${h * 0.72};${h}`}
-                dur={`${2.4 + (i % 4) * 0.3}s`}
-                repeatCount="indefinite"
-              />
-            )}
-            {!reduce && (
-              <animate
-                attributeName="y"
-                values={`${136 - h};${136 - h * 0.72};${136 - h}`}
-                dur={`${2.4 + (i % 4) * 0.3}s`}
-                repeatCount="indefinite"
-              />
-            )}
-          </rect>
+          <g key={s}>
+            <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#ffffff" strokeOpacity="0.25" />
+            <text x={tx} y={ty + 3} textAnchor="middle" fontSize="6.8" fill="#6b7288" style={mono}>
+              {s}s
+            </text>
+          </g>
         );
       })}
-      <line x1="232" x2="232" y1="22" y2="140" stroke="var(--warn)" strokeDasharray="3 4" />
-      <rect x="238" y="16" width="62" height="20" rx="10" fill="var(--panel-2)" stroke="var(--line-2)" />
-      <text x="248" y="29.5" fontSize="9.5" fill="var(--warn)" style={mono}>
-        p95 1.4s
+      {/* needle */}
+      <g transform={`rotate(${needleDeg} ${cx} ${cy})`}>
+        {!reduce && (
+          <animateTransform attributeName="transform" type="rotate" values={`${needleDeg - 6} ${cx} ${cy};${needleDeg + 4} ${cx} ${cy};${needleDeg - 6} ${cx} ${cy}`} dur="3.2s" repeatCount="indefinite" />
+        )}
+        <path d={`M${cx - 2.4} ${cy} L${cx} ${cy - R + 20} L${cx + 2.4} ${cy} Z`} fill="#eef0fb" />
+      </g>
+      <circle cx={cx} cy={cy} r="7" fill="#0b0d18" stroke={ACC} strokeWidth="1.6" filter={`url(#${ids.glow})`} />
+      {/* readouts */}
+      <text x={cx} y={cy + 26} textAnchor="middle" fontSize="15" fontWeight="600" fill="#eef0fb" style={sans}>
+        1.4 s
       </text>
-      <text x="10" y="154" fontSize="8.5" fill="var(--faint)" style={mono}>
-        gateway_request_latency_seconds
+      <text x={cx} y={cy + 38} textAnchor="middle" fontSize="7" fill="#727a96" style={mono}>
+        p95 latency
       </text>
+      <Tag x={14} y={14} w={74} tone={SIG}>p50 490 ms</Tag>
+      <Tag x={232} y={14} w={74} tone="#a4aac3">mean 605 ms</Tag>
     </svg>
   );
 }
