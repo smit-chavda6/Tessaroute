@@ -31,13 +31,24 @@ from app.security import generate_api_key, hash_api_key, key_display_prefix
 PROVIDER_WEIGHTS = {"openai": 0.55, "anthropic": 0.25, "gemini": 0.20}
 
 MODELS: dict[str, list[tuple[str, float]]] = {
-    "openai": [("gpt-4o-mini", 0.5), ("gpt-4o", 0.22), ("gpt-5.4", 0.16), ("gpt-4.1-mini", 0.12)],
-    "anthropic": [
-        ("claude-3-5-sonnet-latest", 0.5),
-        ("claude-3-5-haiku-latest", 0.4),
-        ("claude-3-opus-latest", 0.1),
+    # current models (see models.yaml / pricing.yaml, version 2026-11-23);
+    # gpt-5.4 is the live Azure deployment, so it keeps a share of traffic
+    "openai": [
+        ("gpt-6.1-terra", 0.38),
+        ("gpt-5.4", 0.27),
+        ("gpt-6-luna", 0.22),
+        ("gpt-6.2-sol", 0.13),
     ],
-    "gemini": [("gemini-3.6-flash", 0.5), ("gemini-1.5-flash", 0.3), ("gemini-1.5-pro", 0.2)],
+    "anthropic": [
+        ("claude-sonnet-5-5", 0.5),
+        ("claude-haiku-5-5", 0.38),
+        ("claude-opus-5-5", 0.12),
+    ],
+    "gemini": [
+        ("gemini-3.8-flash", 0.5),
+        ("gemini-3.5-flash-lite", 0.35),
+        ("gemini-4-argon", 0.15),
+    ],
 }
 
 # provider -> (median latency ms, sigma) for a lognormal draw on success

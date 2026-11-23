@@ -1,0 +1,63 @@
+# =============================================================================
+# Model catalog — aliases, tiers and model-name -> provider inference.
+#
+# Loaded once at startup (path: MODEL_CATALOG_PATH, default backend/models.yaml).
+# When providers ship new models, update THIS file; client code keeps sending
+# `"model": "balanced"` and never changes.
+#
+# aliases
+#   A client may send an alias as `model`. Each alias maps provider -> the model
+#   to use on that provider. The router walks FALLBACK_CHAIN in order and uses
+#   the mapped model on each provider that has an entry. Aliases double as
+#   quality TIERS: when a concrete model (e.g. claude-sonnet-5-5) falls back to
+#   another provider, the router finds the alias that lists it and uses that
+#   alias's model on the fallback provider (so a top-tier request falls back to
+#   a top-tier model, not to whatever that provider's default happens to be).
+#
+#   The value `default` means "the provider's configured default model"
+#   (OPENAI_DEFAULT_MODEL / AZURE_OPENAI_DEPLOYMENT / GEMINI_DEFAULT_MODEL ...).
+#
+#   `azure_openai` is used instead of `openai` when OPENAI_MODE=azure, because
+#   there `model` is an Azure *deployment name*, which is specific to your
+#   resource. Fill in your own deployment names, or leave `default`.
+#
+# prefixes
+#   When a request names no `provider`, a model id starting with one of these
+#   prefixes is routed to that provider first (claude-* -> anthropic, ...).
+#   Anything else (e.g. an Azure deployment name) uses FALLBACK_CHAIN as before.
+#
+# Model ids checked against the providers' official model/pricing pages on
+# 2026-11-23 — see pricing.yaml for the rates.
+# =============================================================================
+version: "2026-11-23"
+
+aliases:
+  smart:
+    description: Frontier reasoning models — hardest tasks, highest cost.
+    models:
+      openai: gpt-6.2-sol
+      azure_openai: default
+      anthropic: claude-opus-5-5
+      gemini: gemini-4-argon
+      azure_foundry: default
+  balanced:
+    description: Strong everyday models — the sensible default.
+    models:
+      openai: gpt-6.1-terra
+      azure_openai: default
+      anthropic: claude-sonnet-5-5
+      gemini: gemini-3.8-flash
+      azure_foundry: default
+  fast:
+    description: Small, cheap, low-latency models — classification, extraction, chat.
+    models:
+      openai: gpt-6-luna
+      azure_openai: default
+      anthropic: claude-haiku-5-5
+      gemini: gemini-3.5-flash-lite
+      azure_foundry: default
+
+prefixes:
+  anthropic: ["claude-"]
+  gemini: ["gemini-"]
+  openai: ["gpt-", "chatgpt-", "o1", "o3", "o4"]

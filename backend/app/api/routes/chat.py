@@ -42,6 +42,18 @@ router = APIRouter(tags=["gateway"])
 log = get_logger(__name__)
 
 
+def _served_model(requested: str, model_used: str, upstream: str | None) -> str:
+    """The model that actually served the request: the planned hop model, or the
+    upstream-reported id when the hop used the provider default."""
+    if model_used and not model_used.endswith(":default"):
+        return model_used
+    return upstream or requested
+
+
+def _requested_if_different(requested: str, served: str) -> str | None:
+    return requested if requested and requested != served else None
+
+
 def _sse(payload: dict[str, Any]) -> str:
     return f"data: {json.dumps(payload, separators=(',', ':'))}\n\n"
 
@@ -99,6 +111,8 @@ async def create_chat_completion(
         outcome.latency_ms = round((time.perf_counter() - started) * 1000, 2)
 
         completion = result.completion
+        served = _served_model(payload.model, result.model_used, completion.model)
+        outcome.model = served
         outcome.status = "success"
         outcome.http_status = 200
         outcome.provider = result.provider_used
@@ -115,7 +129,7 @@ async def create_chat_completion(
 
         cost = request.app.state.pricing.cost(
             result.provider_used,
-            payload.model,
+            served,
             completion.usage.prompt_tokens,
             completion.usage.completion_tokens,
         )
@@ -151,7 +165,7 @@ async def create_chat_completion(
         response = ChatCompletionResponse(
             id=completion.id,
             created=completion.created,
-            model=payload.model or completion.model,
+            model=served,
             choices=[
                 ResponseChoice(
                     index=0,
@@ -167,7 +181,8 @@ async def create_chat_completion(
             gateway=GatewayMetadata(
                 request_id=request_id,
                 provider=result.provider_used,
-                model=payload.model or completion.model,
+                model=served,
+                requested_model=_requested_if_different(payload.model, served),
                 upstream_model=completion.model,
                 cache=CacheInfo(status="MISS" if cache_active else "DISABLED", key=lookup.key),
                 fallback=FallbackInfo(used=result.fallback_used, chain=result.attempts),
@@ -331,7 +346,8 @@ async def _stream_response(
                 final["gateway"] = GatewayMetadata(
                     request_id=request_id,
                     provider=stream_outcome.provider_used,
-                    model=model_name or stream_outcome.upstream_model,
+                    model=outcome.model,
+                    requested_model=_requested_if_different(model_name, outcome.model),
                     upstream_model=stream_outcome.upstream_model,
                     cache=CacheInfo(status="DISABLED"),
                     fallback=FallbackInfo(
@@ -377,6 +393,7 @@ def _chunk_frame(
 def _finalize_outcome(outcome: RequestOutcome, so: StreamOutcome, started: float) -> None:
     outcome.latency_ms = round((time.perf_counter() - started) * 1000, 2)
     outcome.provider = so.provider_used
+    outcome.model = _served_model(outcome.model, so.model_used, so.upstream_model)
     outcome.upstream_model = so.upstream_model
     outcome.prompt_tokens = so.usage.prompt_tokens
     outcome.completion_tokens = so.usage.completion_tokens

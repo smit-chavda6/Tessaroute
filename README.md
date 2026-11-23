@@ -199,6 +199,25 @@ fallback chain. Each is enabled only when its credentials are set.
 unified Foundry `/models` inference surface (its own api-version and deployments).
 See `backend/README.md` for the full provider and configuration reference.
 
+## Models and aliases
+
+`backend/models.yaml` is the model catalog. When providers release new models,
+edit that file. Client code doesn't change.
+
+- **Aliases.** Send `"model": "smart"`, `"balanced"` or `"fast"`. Each maps to a
+  concrete model per provider (e.g. `balanced` → `gpt-6.1-terra` /
+  `claude-sonnet-5-5` / `gemini-3.8-flash`). The response's `gateway.model` is
+  the model that served it and `gateway.requested_model` is the alias.
+- **Model → provider.** With no `provider` field, `claude-*` goes to Anthropic,
+  `gemini-*` to Gemini, and `gpt-*` / `o*` to OpenAI first.
+- **Same-tier fallback.** If `claude-opus-5-5` fails, the fallback hop uses
+  `gpt-6.2-sol` or `gemini-4-argon`, not the fallback provider's default model.
+- **`GET /v1/models`.** OpenAI-compatible model list (aliases + configured
+  models, with per-1k pricing), so `client.models.list()` works.
+
+Prices live in `backend/pricing.yaml` (version `2026-11-23`, checked against the
+providers' official pricing pages).
+
 ---
 
 ## Test it

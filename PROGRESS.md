@@ -1050,3 +1050,49 @@ tsc+oxlint+vitest+Playwright) and committed one change at a time.
 - **`feat` CSV export** — `GET /v1/requests/export.csv` (same filters, 50k cap,
   attachment); "CSV" button on the Requests explorer.
 - **README** — architecture Mermaid diagram + `docs/screenshots/` gallery.
+- **`feat(models)` current models + model catalog** (2026-11-23)
+  - **Model refresh.** Defaults → `gpt-6.1-terra` (OpenAI / Foundry),
+    `claude-sonnet-5-5`, `gemini-3.8-flash`. `pricing.yaml` version
+    `2026-11-23`: rates checked against the official OpenAI, Anthropic and
+    Google pricing pages that day (gpt-6.x / gpt-5.4–5.6, Claude Fable 5.2 /
+    Opus / Sonnet / Haiku 5.5, Gemini 4 Argon/Carbon/Neon/Hydrogen, 3.8 / 3.6
+    Flash, 3.5 Flash-Lite). This corrected two old *estimates* that were wrong
+    (`gpt-5.4` was $1.25/$10 → really $2.50/$15; `gemini-3.6-flash` $0.30/$2.50
+    → $0.75/$3.75). Older models are kept as "legacy" entries so historical rows
+    still match. Scheduled price changes (Gemini 4 on 2026-12-01, 3.x Flash
+    on 2027-01-01, gpt-5.6-sol promo end) are noted inline. Seed data now uses
+    current models.
+  - **`backend/models.yaml` + `app/model_catalog.py`.** Aliases `smart` /
+    `balanced` / `fast` map to a concrete model per provider (`default` = that
+    provider's configured default; `azure_openai` overrides `openai` when
+    `OPENAI_MODE=azure`, since there `model` is a deployment name). The aliases
+    double as quality tiers. `MODEL_CATALOG_PATH`, `INFER_PROVIDER_FROM_MODEL`.
+  - **Router (`Router._plan`)** now builds `(provider, model)` hops:
+    (1) an alias resolves per provider along the chain; (2) with no explicit
+    provider, `claude-*` / `gemini-*` / `gpt-*` / `o*` go to their own
+    provider first (before this, `claude-…` with no `provider` went to the
+    chain head, OpenAI, and failed); (3) on fallback the same-tier model is used
+    (`claude-opus-5-5` → `gpt-6.2-sol`, not OpenAI's default); (4) if the model's
+    own provider isn't configured, the request is served by a same-tier model
+    elsewhere. Unknown model ids keep the old behaviour.
+  - **Served-model accounting fix.** Cost, the `requests.model` column and
+    `gateway.model` now use the model that *actually served* the request (alias
+    or fallback hop), not the requested string. Before this, a fallback was
+    priced at the *requested* model's id against the *fallback* provider's
+    table, which fell through to that provider's `default` rate. New
+    `gateway.requested_model` when they differ.
+  - **`GET /v1/models`** (project-key auth): OpenAI-compatible list of aliases
+    (with `resolves_to`) + each configured provider's default and catalog
+    models, each with an `infermesh` object (provider, per-1k pricing,
+    estimated flag).
+  - Tests: `tests/test_model_catalog.py` (24): catalog parsing/validation, a
+    guard that every catalog model has a confirmed non-estimated price,
+    planning (alias, inference, tier fallback, unconfigured provider, azure
+    override, inference off, explicit provider wins), `/v1/models`, alias
+    chat round trip with cost. Gate: ruff + format + mypy clean,
+    **197 passed / 9 deselected**.
+  - Live check, 2026-11-23: the routing plan is correct in the live log. The live
+    tests could not pass that day: the Azure endpoint was unreachable from this
+    machine (connection error, the same on the pre-change code), and the Gemini
+    free tier returned 503 / 429 (20 req/day/model). Direct probes: all
+    new Gemini ids exist (no 404); `gemini-3.5-flash-lite` answered 200.

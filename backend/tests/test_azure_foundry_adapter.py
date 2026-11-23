@@ -128,7 +128,7 @@ async def test_complete_falls_back_to_default_model_when_request_model_blank() -
         return httpx.Response(200, json=_OK_BODY)
 
     adapter = _adapter(handler)
-    # a fallback hop clears the provider-specific model (see routing._request_for)
+    # a hop planned with model "" uses the deployment default (see routing._plan)
     blank = _req().model_copy(update={"model": ""})
     await adapter.complete(blank)
 

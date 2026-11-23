@@ -21,7 +21,9 @@ UI → Azure AI Foundry provider → **polish & testing**). The build is finishe
 see **PROGRESS.md § "Post-build improvements"** (new logo, login rework,
 sign-out fix, Prometheus `/metrics` + `/v1/version`, per-provider **circuit
 breaker**, dashboard Docker image + `docker compose --profile full`, route-level
-code splitting, toasts, CSV export). Pushed to `github.com/smit-chavda6/InferMesh`.
+code splitting, toasts, CSV export, **current models + model catalog**:
+`backend/models.yaml` aliases `smart`/`balanced`/`fast`, tier-aware fallback,
+model→provider inference, `GET /v1/models`). Pushed to `github.com/smit-chavda6/InferMesh`.
 
 - **Backend** (`backend/`): FastAPI async gateway, live-verified against the Azure
   + Gemini keys in `backend/.env`. **Four** providers (`openai`/azure,
@@ -29,7 +31,7 @@ code splitting, toasts, CSV export). Pushed to `github.com/smit-chavda6/InferMes
   API, distinct from `OPENAI_MODE=azure`). Router: retry/backoff → fallback chain
   → circuit breaker. `scripts/seed.py` fills the DB with ~100k realistic rows.
   Gate: `uv run ruff check . && uv run ruff format --check . && uv run mypy &&
-  uv run pytest` → **169 passed / 8 deselected** (`-m "not live"` in CI).
+  uv run pytest` → **197 passed / 9 deselected** (`-m "not live"` in CI).
 - **Frontend** (`frontend/`, Vite + Tailwind v4 + TanStack Query + Recharts +
   Radix; branded **InferMesh**): every §6–§24 page on a real §27 endpoint through
   a thin typed client; route-level code-split. Gate: `npx tsc -b --noEmit &&

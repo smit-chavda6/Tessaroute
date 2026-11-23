@@ -7,6 +7,12 @@ failures (timeout / rate-limit / upstream 5xx); on a non-retryable failure
 in the chain is tried. If every provider fails, ``AllProvidersFailedError`` is
 raised carrying the full attempt log.
 
+Which model runs on each hop comes from the model catalog (``models.yaml``):
+an alias (``"balanced"``) maps to a concrete model per provider; a concrete
+model with no explicit provider is routed to its own provider first
+(``claude-*`` -> anthropic); and on a fallback hop the router picks the
+same-tier model on the next provider instead of that provider's default.
+
 Retry/backoff/fallback live here, not in adapters and not in the route handler.
 """
 
@@ -30,6 +36,7 @@ from app.errors import (
     ProviderTimeoutError,
 )
 from app.logging_config import get_logger
+from app.model_catalog import ModelCatalog, get_model_catalog
 from app.providers.base import NormalizedCompletion, NormalizedUsage, StreamChunk
 from app.providers.registry import ProviderRegistry
 from app.schemas.chat import ChatCompletionRequest
@@ -101,11 +108,15 @@ class Router:
         settings: Settings,
         sleep: SleepFn = asyncio.sleep,
         breaker: CircuitBreaker | None = None,
+        catalog: ModelCatalog | None = None,
     ) -> None:
         self._registry = registry
         self._settings = settings
         self._sleep = sleep
         self._breaker = breaker if settings.circuit_breaker_enabled else None
+        self._catalog = catalog or get_model_catalog(
+            settings.model_catalog_path, settings.openai_mode
+        )
 
     def _skipped_attempt(self, provider: str) -> ProviderAttempt:
         return ProviderAttempt(
@@ -139,6 +150,55 @@ class Router:
             )
         return chain
 
+    def _plan(self, request: ChatCompletionRequest) -> list[tuple[str, str]]:
+        """Ordered ``(provider, model)`` hops for a request. ``model == ""`` means
+        "that provider's configured default"."""
+        s = self._settings
+        cat = self._catalog
+        requested_model = request.model or ""
+        explicit = request.provider
+
+        # 1. alias -> concrete model per provider, in chain order
+        if cat.is_alias(requested_model):
+            hops: list[tuple[str, str]] = []
+            for provider in self._provider_chain(explicit):
+                mapped = cat.resolve_alias(requested_model, provider)
+                if mapped is not None:
+                    hops.append((provider, mapped))
+            if not hops:
+                raise ProviderNotConfiguredError(
+                    explicit or s.default_provider,
+                    f"no configured provider serves model alias {requested_model!r}",
+                )
+            return hops
+
+        # 2. concrete model: start at the explicit provider, else the provider the
+        #    model id belongs to, else the head of the fallback chain
+        available = s.available_providers()
+        source: str | None = None  # provider the requested model id belongs to
+        if explicit is None and s.infer_provider_from_model:
+            source = cat.infer_provider(requested_model)
+
+        if source is not None and source in available:
+            chain = [source]
+            if s.fallback_enabled:
+                chain += [p for p in s.fallback_chain if p in available and p != source]
+        elif source is not None:
+            # the model's own provider isn't configured: every hop is a fallback
+            if not s.fallback_enabled:
+                raise ProviderNotConfiguredError(
+                    source, f"provider for model {requested_model!r} is not configured"
+                )
+            chain = self._provider_chain(None)
+            return [(p, cat.equivalent(requested_model, source, p)) for p in chain]
+        else:
+            chain = self._provider_chain(explicit)
+
+        head = chain[0]
+        return [(head, requested_model)] + [
+            (p, cat.equivalent(requested_model, head, p)) for p in chain[1:]
+        ]
+
     def _backoff_delay(self, retry_index: int) -> float:
         """Delay before retry ``retry_index`` (0 = first retry)."""
         s = self._settings
@@ -150,21 +210,20 @@ class Router:
 
     # -- execution -------------------------------------------------------
 
-    def _request_for(
-        self, provider: str, request: ChatCompletionRequest, is_fallback: bool
-    ) -> ChatCompletionRequest:
-        """On a fallback hop the requested model is provider-specific and won't
-        exist on the fallback provider — clear it so that adapter uses its default."""
-        if is_fallback and request.model:
-            return request.model_copy(update={"model": ""})
+    @staticmethod
+    def _request_for(request: ChatCompletionRequest, model: str) -> ChatCompletionRequest:
+        """The request as sent to one hop: ``model`` is the planned model for that
+        provider (``""`` = the adapter's configured default)."""
+        if model != request.model:
+            return request.model_copy(update={"model": model})
         return request
 
     async def _try_provider(
-        self, provider: str, request: ChatCompletionRequest, *, is_fallback: bool = False
+        self, provider: str, request: ChatCompletionRequest, model: str
     ) -> tuple[NormalizedCompletion | None, ProviderAttempt]:
         """Run one provider with its retry loop. Returns (completion|None, attempt log)."""
         adapter = self._registry.get(provider)
-        req = self._request_for(provider, request, is_fallback)
+        req = self._request_for(request, model)
         model = req.model or f"{provider}:default"
         attempt = ProviderAttempt(provider=provider, model=model, outcome="error")
         max_attempts = self._settings.retry_max_attempts
@@ -215,16 +274,16 @@ class Router:
         return None, attempt
 
     async def execute(self, request: ChatCompletionRequest) -> ExecutionResult:
-        chain = self._provider_chain(request.provider)
-        log.info("router.chain", chain=chain, requested=request.provider)
+        plan = self._plan(request)
+        log.info("router.chain", chain=plan, requested=request.provider, model=request.model)
 
         attempts: list[ProviderAttempt] = []
-        for idx, provider in enumerate(chain):
+        for provider, hop_model in plan:
             if self._breaker and not self._breaker.allow(provider):
                 log.warning("router.circuit_open_skip", provider=provider)
                 attempts.append(self._skipped_attempt(provider))
                 continue
-            completion, attempt = await self._try_provider(provider, request, is_fallback=idx > 0)
+            completion, attempt = await self._try_provider(provider, request, hop_model)
             attempts.append(attempt)
             if completion is not None:
                 if self._breaker:
@@ -258,18 +317,18 @@ class Router:
         increment and exactly one ``StreamOutcome`` last (unless it raises
         ``AllProvidersFailedError`` before anything was streamed).
         """
-        chain = self._provider_chain(request.provider)
-        log.info("router.stream_chain", chain=chain, requested=request.provider)
+        plan = self._plan(request)
+        log.info("router.stream_chain", chain=plan, requested=request.provider, model=request.model)
         attempts: list[ProviderAttempt] = []
         max_attempts = self._settings.retry_max_attempts
 
-        for idx, provider in enumerate(chain):
+        for provider, hop_model in plan:
             if self._breaker and not self._breaker.allow(provider):
                 log.warning("router.stream_circuit_open_skip", provider=provider)
                 attempts.append(self._skipped_attempt(provider))
                 continue
             adapter = self._registry.get(provider)
-            req = self._request_for(provider, request, is_fallback=idx > 0)
+            req = self._request_for(request, hop_model)
             model = req.model or f"{provider}:default"
 
             for i in range(max_attempts):

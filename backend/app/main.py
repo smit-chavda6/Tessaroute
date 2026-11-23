@@ -12,6 +12,7 @@ from app.api.routes.auth import router as auth_router
 from app.api.routes.chat import router as chat_router
 from app.api.routes.dashboard import router as dashboard_router
 from app.api.routes.health import router as health_router
+from app.api.routes.models import router as models_router
 from app.api.routes.projects import router as projects_router
 from app.api.routes.requests import router as requests_router
 from app.auth import AdminAuth
@@ -22,6 +23,7 @@ from app.db.session import Database
 from app.errors import register_exception_handlers
 from app.logging_config import configure_logging, get_logger
 from app.middleware import RequestContextMiddleware
+from app.model_catalog import get_model_catalog
 from app.observability import UsageRecorder
 from app.pricing import get_pricing_table
 from app.providers.registry import ProviderRegistry
@@ -44,7 +46,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             failure_threshold=settings.circuit_breaker_failure_threshold,
             reset_seconds=settings.circuit_breaker_reset_seconds,
         )
-        app.state.router = Router(app.state.registry, settings, breaker=app.state.circuit_breaker)
+        app.state.model_catalog = get_model_catalog(
+            settings.model_catalog_path, settings.openai_mode
+        )
+        app.state.router = Router(
+            app.state.registry,
+            settings,
+            breaker=app.state.circuit_breaker,
+            catalog=app.state.model_catalog,
+        )
         app.state.db = Database(settings)
         app.state.pricing = get_pricing_table()
         app.state.recorder = UsageRecorder(
@@ -77,6 +87,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             default_provider=settings.default_provider,
             providers_available=app.state.registry.available(),
             pricing_version=app.state.pricing.version,
+            model_catalog_version=app.state.model_catalog.version,
             database_reachable=db_ok,
             redis_reachable=redis_ok,
             cache_enabled=settings.cache_enabled,
@@ -103,6 +114,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     register_exception_handlers(app)
     app.include_router(health_router)
     app.include_router(chat_router)
+    app.include_router(models_router)
     app.include_router(auth_router)
     app.include_router(dashboard_router)
     app.include_router(projects_router)

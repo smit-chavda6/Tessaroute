@@ -43,6 +43,9 @@ class GatewayMetadata(BaseModel):
     request_id: str
     provider: str
     model: str
+    # What the client asked for, when it differs from ``model`` (an alias such as
+    # "balanced", or a fallback hop that switched to a same-tier model).
+    requested_model: str | None = None
     upstream_model: str | None = None
     cache: CacheInfo = Field(default_factory=CacheInfo)
     fallback: FallbackInfo = Field(default_factory=FallbackInfo)

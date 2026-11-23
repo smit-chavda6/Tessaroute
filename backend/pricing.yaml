@@ -1,29 +1,86 @@
 # =============================================================================
 # LLM pricing table  —  POINT-IN-TIME SNAPSHOT (see README §"Cost tracking").
 #
-# Prices are USD per 1,000 tokens. Provider list prices drift over time and this
-# file is NOT auto-updated from any provider API — it is a static, versioned
-# approximation loaded once at startup. Bump `version` whenever you edit numbers;
-# every request row records the version it was costed against.
+# Prices are USD per 1,000 tokens (= the provider's per-1M price / 1000).
+# Standard tier, shortest-prompt tier, no batch / cache-read discounts. Provider
+# list prices drift and this file is NOT auto-updated from any provider API — it
+# is a static, versioned approximation loaded once at startup. Bump `version`
+# whenever you edit numbers; every request row records the version it was
+# costed against.
 #
-# Some entries (gpt-5.x, gemini-3.x) are best-effort estimates where no public
-# list price was on hand at authoring time — flagged with `estimated: true`.
+# Version 2026-11-23: current models checked against the official pricing pages
+# (developers.openai.com/api/docs/pricing, platform.claude.com/docs/en/about-claude/pricing,
+# aistudio.google.com/docs/pricing) on 2026-11-23. Scheduled changes known on
+# that date are noted inline — re-check after them.
+#
+# Older models are kept under "legacy" so historical rows and existing
+# deployments still match a price. Entries flagged `estimated: true` have no
+# confirmed public list price.
 # =============================================================================
-version: "2026-09-01"
+version: "2026-11-23"
 currency: USD
 
 providers:
   openai:
     default:
-      input_per_1k: 0.0005
-      output_per_1k: 0.0015
+      input_per_1k: 0.001
+      output_per_1k: 0.005
+      estimated: true
     models:
-      gpt-4o-mini:
-        input_per_1k: 0.00015
-        output_per_1k: 0.0006
-      gpt-4o:
-        input_per_1k: 0.0025
+      # --- current (gpt-6 family) ---
+      gpt-6.2-astra:
+        input_per_1k: 0.008
+        output_per_1k: 0.04
+      gpt-6.2-sol:
+        input_per_1k: 0.002
         output_per_1k: 0.01
+      gpt-6.1-sol:
+        input_per_1k: 0.002
+        output_per_1k: 0.01
+      gpt-6.1-terra:
+        input_per_1k: 0.001
+        output_per_1k: 0.005
+      gpt-6-astra:
+        input_per_1k: 0.01
+        output_per_1k: 0.05
+      gpt-6-sol:
+        input_per_1k: 0.002
+        output_per_1k: 0.01
+      gpt-6-luna:
+        input_per_1k: 0.0001
+        output_per_1k: 0.0005
+      # --- gpt-5.x (prices for <272K-token prompts) ---
+      gpt-5.6-sol:
+        # promotional rate "until November 30, 2026" per OpenAI's pricing page
+        input_per_1k: 0.004
+        output_per_1k: 0.02
+      gpt-5.6-terra:
+        input_per_1k: 0.002
+        output_per_1k: 0.012
+      gpt-5.6-luna:
+        input_per_1k: 0.0002
+        output_per_1k: 0.0012
+      gpt-5.5:
+        input_per_1k: 0.005
+        output_per_1k: 0.03
+      gpt-5.4:
+        input_per_1k: 0.0025
+        output_per_1k: 0.015
+      gpt-5.4-mini:
+        input_per_1k: 0.00075
+        output_per_1k: 0.0045
+      gpt-5.4-nano:
+        input_per_1k: 0.0002
+        output_per_1k: 0.00125
+      # --- legacy ---
+      gpt-5:
+        input_per_1k: 0.00125
+        output_per_1k: 0.01
+        estimated: true
+      gpt-5-mini:
+        input_per_1k: 0.00025
+        output_per_1k: 0.002
+        estimated: true
       gpt-4.1:
         input_per_1k: 0.002
         output_per_1k: 0.008
@@ -33,31 +90,56 @@ providers:
       gpt-4.1-nano:
         input_per_1k: 0.0001
         output_per_1k: 0.0004
-      gpt-5:
-        input_per_1k: 0.00125
+      gpt-4o:
+        input_per_1k: 0.0025
         output_per_1k: 0.01
-        estimated: true
-      gpt-5-mini:
-        input_per_1k: 0.00025
-        output_per_1k: 0.002
-        estimated: true
-      gpt-5.4:
-        input_per_1k: 0.00125
-        output_per_1k: 0.01
-        estimated: true
-      gpt-5.4-mini:
-        input_per_1k: 0.00025
-        output_per_1k: 0.002
-        estimated: true
+      gpt-4o-mini:
+        input_per_1k: 0.00015
+        output_per_1k: 0.0006
       o3-mini:
         input_per_1k: 0.0011
         output_per_1k: 0.0044
 
   anthropic:
     default:
-      input_per_1k: 0.003
-      output_per_1k: 0.015
+      input_per_1k: 0.002
+      output_per_1k: 0.01
+      estimated: true
     models:
+      # --- current ---
+      claude-fable-5-2:
+        input_per_1k: 0.008
+        output_per_1k: 0.04
+      claude-opus-5-5:
+        input_per_1k: 0.004
+        output_per_1k: 0.02
+      claude-sonnet-5-5:
+        input_per_1k: 0.002
+        output_per_1k: 0.01
+      claude-haiku-5-5:
+        # prompts up to 100K tokens; longer prompts are $0.50 / $2.50 per 1M
+        input_per_1k: 0.0001
+        output_per_1k: 0.0005
+      # --- legacy ---
+      claude-opus-5:
+        input_per_1k: 0.005
+        output_per_1k: 0.025
+      claude-sonnet-5:
+        input_per_1k: 0.002
+        output_per_1k: 0.01
+      claude-sonnet-4-6:
+        input_per_1k: 0.003
+        output_per_1k: 0.015
+      claude-sonnet-4-5:
+        input_per_1k: 0.003
+        output_per_1k: 0.015
+      claude-haiku-4-5:
+        input_per_1k: 0.001
+        output_per_1k: 0.005
+      claude-sonnet-4:
+        # retired on the Claude API
+        input_per_1k: 0.003
+        output_per_1k: 0.015
       claude-3-5-sonnet-latest:
         input_per_1k: 0.003
         output_per_1k: 0.015
@@ -70,37 +152,61 @@ providers:
       claude-3-opus-latest:
         input_per_1k: 0.015
         output_per_1k: 0.075
-      claude-sonnet-4:
-        input_per_1k: 0.003
-        output_per_1k: 0.015
-        estimated: true
 
   gemini:
     default:
-      input_per_1k: 0.0003
-      output_per_1k: 0.0025
+      input_per_1k: 0.00075
+      output_per_1k: 0.00375
+      estimated: true
     models:
+      # --- current ---
+      gemini-4-argon:
+        # $2 / $10 per 1M through 2026-11-30; $4 / $20 from 2026-12-01
+        input_per_1k: 0.002
+        output_per_1k: 0.01
+      gemini-4-carbon:
+        # $2 / $10 per 1M through 2026-11-30; $4 / $20 from 2026-12-01
+        input_per_1k: 0.002
+        output_per_1k: 0.01
+      gemini-4-neon:
+        input_per_1k: 0.003
+        output_per_1k: 0.015
+      gemini-4-hydrogen:
+        input_per_1k: 0.0015
+        output_per_1k: 0.0075
+      gemini-3.8-flash:
+        # $0.75 / $3.75 per 1M through 2026-12-31; $1.50 / $7.50 from 2027-01-01
+        input_per_1k: 0.00075
+        output_per_1k: 0.00375
+      gemini-3.6-flash:
+        # same schedule as gemini-3.8-flash
+        input_per_1k: 0.00075
+        output_per_1k: 0.00375
+      gemini-3.5-flash-lite:
+        input_per_1k: 0.0003
+        output_per_1k: 0.0025
+      gemini-flash-latest:
+        # moving alias; target not published — priced as the current Flash
+        input_per_1k: 0.00075
+        output_per_1k: 0.00375
+        estimated: true
+      gemini-pro-latest:
+        input_per_1k: 0.002
+        output_per_1k: 0.01
+        estimated: true
+      # --- legacy ---
+      gemini-2.5-flash-lite:
+        input_per_1k: 0.0001
+        output_per_1k: 0.0004
+      gemini-2.0-flash:
+        input_per_1k: 0.0001
+        output_per_1k: 0.0004
       gemini-1.5-flash:
         input_per_1k: 0.000075
         output_per_1k: 0.0003
       gemini-1.5-pro:
         input_per_1k: 0.00125
         output_per_1k: 0.005
-      gemini-2.0-flash:
-        input_per_1k: 0.0001
-        output_per_1k: 0.0004
-      gemini-3.6-flash:
-        input_per_1k: 0.0003
-        output_per_1k: 0.0025
-        estimated: true
-      gemini-flash-latest:
-        input_per_1k: 0.0003
-        output_per_1k: 0.0025
-        estimated: true
-      gemini-pro-latest:
-        input_per_1k: 0.00125
-        output_per_1k: 0.01
-        estimated: true
 
   # Azure AI Foundry (Phase 11). Foundry bills per underlying model at the same
   # per-token rates as that model's first-party provider; deployment names are
@@ -108,20 +214,28 @@ providers:
   # mirror their upstream model.
   azure_foundry:
     default:
-      input_per_1k: 0.00125
-      output_per_1k: 0.01
+      input_per_1k: 0.001
+      output_per_1k: 0.005
       estimated: true
     models:
+      gpt-6.1-terra:
+        input_per_1k: 0.001
+        output_per_1k: 0.005
+      gpt-6-luna:
+        input_per_1k: 0.0001
+        output_per_1k: 0.0005
+      gpt-5.4:
+        input_per_1k: 0.0025
+        output_per_1k: 0.015
+      gpt-5.4-mini:
+        input_per_1k: 0.00075
+        output_per_1k: 0.0045
       gpt-4o:
         input_per_1k: 0.0025
         output_per_1k: 0.01
       gpt-4o-mini:
         input_per_1k: 0.00015
         output_per_1k: 0.0006
-      gpt-5.4:
-        input_per_1k: 0.00125
-        output_per_1k: 0.01
-        estimated: true
       llama-3.3-70b-instruct:
         input_per_1k: 0.00071
         output_per_1k: 0.00071

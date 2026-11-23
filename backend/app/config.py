@@ -112,7 +112,7 @@ class Settings(BaseSettings):
     openai_mode: Literal["native", "azure"] = "native"
     openai_api_key: str | None = None
     openai_base_url: str | None = None
-    openai_default_model: str = "gpt-4o-mini"
+    openai_default_model: str = "gpt-6.1-terra"
     openai_timeout_seconds: float = Field(default=30.0, gt=0)
 
     azure_openai_endpoint: str | None = None
@@ -122,14 +122,14 @@ class Settings(BaseSettings):
     # --- Anthropic -----------------------------------------------------------
     anthropic_api_key: str | None = None
     anthropic_base_url: str | None = None
-    anthropic_default_model: str = "claude-3-5-sonnet-latest"
+    anthropic_default_model: str = "claude-sonnet-5-5"
     anthropic_timeout_seconds: float = Field(default=60.0, gt=0)
     # Anthropic's API requires max_tokens; used when a request doesn't set one.
     anthropic_default_max_tokens: int = Field(default=1024, gt=0)
 
     # --- Gemini ------------------------------------------------------------
     gemini_api_key: str | None = None
-    gemini_default_model: str = "gemini-3.6-flash"
+    gemini_default_model: str = "gemini-3.8-flash"
     gemini_timeout_seconds: float = Field(default=60.0, gt=0)
 
     # --- Azure AI Foundry (Phase 11) -------------------------------------------
@@ -141,7 +141,7 @@ class Settings(BaseSettings):
     azure_foundry_endpoint: str | None = None
     azure_foundry_api_key: str | None = None
     azure_foundry_api_version: str = "2024-05-01-preview"
-    azure_foundry_model: str = "gpt-4o-mini"
+    azure_foundry_model: str = "gpt-6.1-terra"
     azure_foundry_timeout_seconds: float = Field(default=60.0, gt=0)
 
     # --- Reliability: retry / backoff / fallback ---------------------------
@@ -160,6 +160,14 @@ class Settings(BaseSettings):
     # If a request DOES name a provider and it fails, still fall through to the
     # rest of the chain (vs. failing hard on the named provider only).
     fallback_on_explicit_provider: bool = True
+
+    # --- Model catalog -----------------------------------------------------------
+    # models.yaml: aliases ("smart"/"balanced"/"fast"), same-tier fallback mapping
+    # and model-name -> provider inference. None = backend/models.yaml.
+    model_catalog_path: str | None = None
+    # With no explicit `provider`, route claude-* / gemini-* / gpt-* to their own
+    # provider first instead of always starting at the head of FALLBACK_CHAIN.
+    infer_provider_from_model: bool = True
 
     # --- Circuit breaker -------------------------------------------------------
     # After N consecutive provider failures the router skips that provider until
